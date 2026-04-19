@@ -1,0 +1,2557 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PRD — Smart Audio Guide Vĩnh Khánh</title>
+<meta content="PRD single-page cho hệ thống Smart Audio Guide Vĩnh Khánh gồm Web Admin ASP.NET Core MVC, Mobile App .NET MAUI và SQL Server." name="description"/>
+<style>
+    :root {
+      --bg: #070b12;
+      --bg-soft: #0b1220;
+      --surface: rgba(15, 23, 42, 0.86);
+      --surface-2: rgba(19, 29, 52, 0.92);
+      --surface-3: #111827;
+      --text: #e5eefc;
+      --muted: #93a4bf;
+      --line: rgba(148, 163, 184, 0.16);
+      --line-strong: rgba(148, 163, 184, 0.28);
+      --cyan: #22d3ee;
+      --cyan-2: #67e8f9;
+      --orange: #ff8a3d;
+      --orange-2: #ffb067;
+      --lime: #8bff7f;
+      --danger: #ff5d7a;
+      --purple: #9b8cff;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --content: 1220px;
+      --nav-h: 72px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(34, 211, 238, 0.16), transparent 28%),
+        radial-gradient(circle at 84% 14%, rgba(255, 138, 61, 0.14), transparent 26%),
+        radial-gradient(circle at 50% 110%, rgba(155, 140, 255, 0.12), transparent 26%),
+        linear-gradient(180deg, #03060d 0%, #070b12 42%, #090f1a 100%);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(circle at center, black 44%, transparent 95%);
+      opacity: 0.4;
+      z-index: 0;
+    }
+
+    a { color: inherit; }
+    code {
+      font-family: "Cascadia Code", Consolas, monospace;
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      padding: 0.14rem 0.38rem;
+      border-radius: 8px;
+      color: var(--cyan-2);
+      font-size: 0.92em;
+    }
+
+    .progress {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--cyan), var(--orange));
+      transform-origin: left center;
+      transform: scaleX(0);
+      z-index: 200;
+      box-shadow: 0 0 24px rgba(34, 211, 238, 0.45);
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      height: var(--nav-h);
+      backdrop-filter: blur(18px);
+      background: rgba(5, 10, 18, 0.76);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .nav-inner {
+      max-width: calc(var(--content) + 40px);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(255, 138, 61, 0.18));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 18px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.28);
+      font-size: 1.2rem;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-copy strong {
+      display: block;
+      font-size: 0.98rem;
+      letter-spacing: 0.01em;
+    }
+
+    .brand-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 360px;
+    }
+
+    .nav-toggle {
+      display: none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: #c4d4ee;
+      font-size: 0.84rem;
+      border: 1px solid transparent;
+      transition: all .22s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #fff;
+      border-color: rgba(34, 211, 238, 0.28);
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(255, 138, 61, 0.08));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+
+    .nav-links a.active {
+      font-weight: 700;
+      transform: translateY(-1px) scale(1.06);
+      border-color: rgba(34, 211, 238, 0.52);
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(255, 138, 61, 0.14));
+      box-shadow:
+        0 10px 24px rgba(34, 211, 238, 0.14),
+        0 0 0 1px rgba(34, 211, 238, 0.16),
+        inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      max-width: calc(var(--content) + 40px);
+      margin: 0 auto;
+      padding: 34px 20px 20px;
+    }
+
+    .hero-panel {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(140deg, rgba(12, 20, 36, 0.94), rgba(8, 14, 26, 0.96)),
+        linear-gradient(135deg, rgba(34, 211, 238, 0.16), rgba(255, 138, 61, 0.10));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 34px;
+      padding: 38px;
+      box-shadow: var(--shadow);
+      isolation: isolate;
+    }
+
+    .hero-panel::before,
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(16px);
+      z-index: -1;
+      opacity: 0.85;
+    }
+
+    .hero-panel::before {
+      width: 340px;
+      height: 340px;
+      right: -70px;
+      top: -120px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.22), transparent 70%);
+    }
+
+    .hero-panel::after {
+      width: 360px;
+      height: 360px;
+      left: -120px;
+      bottom: -200px;
+      background: radial-gradient(circle, rgba(255, 138, 61, 0.18), transparent 72%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 36px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 211, 238, 0.2);
+      background: rgba(255,255,255,0.035);
+      color: #bfe9ff;
+      font-size: 0.83rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3.65rem);
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+      margin: 0 0 16px;
+      max-width: 920px;
+    }
+
+    .hero .lead {
+      margin: 0 0 20px;
+      font-size: 1.02rem;
+      color: #bfd0e7;
+      max-width: 860px;
+    }
+
+    .chips,
+    .legend-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #d9e6f8;
+      font-size: 0.84rem;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.015);
+    }
+
+    .chip .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 14px currentColor;
+      opacity: 0.9;
+    }
+
+    .hero-aside {
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero-note,
+    .card,
+    .stat,
+    .diagram-card,
+    .highlight,
+    .table-wrap,
+    .timeline,
+    .callout,
+    .subpanel,
+    .diagram-shell {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(13, 19, 34, 0.92));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-note {
+      padding: 18px 18px 16px;
+      min-height: 100%;
+    }
+
+    .hero-note h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .hero-note p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .hero-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .hero-mini {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .hero-mini b {
+      display: block;
+      font-size: 1.05rem;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .hero-mini span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .section {
+      max-width: calc(var(--content) + 40px);
+      margin: 0 auto;
+      padding: 18px 20px 0;
+      scroll-margin-top: calc(var(--nav-h) + 18px);
+    }
+
+    .section-inner {
+      padding: 30px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(9, 14, 24, 0.68), rgba(8, 13, 23, 0.54));
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .section-kicker {
+      color: var(--cyan-2);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.76rem;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .section h2 {
+      margin: 0;
+      font-size: clamp(1.55rem, 2.5vw, 2.4rem);
+      line-height: 1.14;
+      letter-spacing: -0.03em;
+    }
+
+    .section-desc {
+      max-width: 820px;
+      color: var(--muted);
+      margin-top: 10px;
+      font-size: 0.98rem;
+    }
+
+    .section-tag {
+      flex-shrink: 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.14), rgba(255, 138, 61, 0.14));
+      height: fit-content;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      padding: 18px 16px;
+      text-align: center;
+    }
+
+    .stat .value {
+      display: block;
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 6px;
+      color: white;
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4,
+    .card-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+    .card {
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+      opacity: 0.92;
+    }
+
+    .card h3,
+    .subpanel h3,
+    .diagram-card h3,
+    .table-wrap h3,
+    .timeline h3,
+    .diagram-shell h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+      line-height: 1.3;
+    }
+
+    .card p,
+    .card li,
+    .subpanel p,
+    .subpanel li,
+    .timeline p,
+    .callout p,
+    .diagram-card p,
+    .diagram-meta,
+    .table-wrap p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.94rem;
+    }
+
+    .card ul,
+    .subpanel ul,
+    .timeline ul,
+    .callout ul {
+      margin: 12px 0 0;
+      padding-left: 18px;
+    }
+
+    .card li,
+    .subpanel li,
+    .timeline li,
+    .callout li {
+      margin-bottom: 7px;
+    }
+
+    .highlight,
+    .callout {
+      padding: 18px 20px;
+      margin-top: 16px;
+      border-left: 3px solid var(--cyan);
+      background: linear-gradient(180deg, rgba(13, 20, 34, 0.92), rgba(10, 17, 29, 0.92));
+    }
+
+    .highlight strong,
+    .callout strong { color: #fff; }
+    .highlight.warn { border-left-color: var(--orange); }
+    .highlight.danger { border-left-color: var(--danger); }
+    .highlight.success { border-left-color: var(--lime); }
+
+    .table-wrap {
+      padding: 18px 18px 10px;
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      margin-top: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+      background: rgba(7, 11, 18, 0.55);
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      vertical-align: top;
+      font-size: 0.92rem;
+    }
+
+    th {
+      color: #fff;
+      background: rgba(255,255,255,0.045);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td { color: #cfdbef; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .timeline {
+      padding: 20px 22px 20px 26px;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 16px;
+      top: 24px;
+      bottom: 24px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--cyan), rgba(255, 138, 61, 0.4));
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 30px;
+      margin-bottom: 18px;
+    }
+
+    .timeline-item:last-child { margin-bottom: 0; }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 7px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 3px solid var(--cyan);
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.28);
+    }
+
+    .timeline-item h4 {
+      margin: 0 0 6px;
+      font-size: 0.98rem;
+      color: #fff;
+    }
+
+    .subpanel {
+      padding: 18px 18px 14px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      line-height: 1.28;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      color: #deebff;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      vertical-align: top;
+      margin: 2px 6px 2px 0;
+    }
+
+    td .pill {
+      margin-right: 8px;
+      margin-bottom: 6px;
+    }
+
+    .pill.cyan { box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.18); }
+    .pill.orange { box-shadow: inset 0 0 0 1px rgba(255, 138, 61, 0.18); }
+    .pill.purple { box-shadow: inset 0 0 0 1px rgba(155, 140, 255, 0.18); }
+    .pill.lime { box-shadow: inset 0 0 0 1px rgba(139, 255, 127, 0.18); }
+
+    .diagram-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .diagram-card,
+    .diagram-shell {
+      padding: 18px;
+    }
+
+    .diagram-meta {
+      margin-bottom: 12px;
+    }
+
+    .mermaid-placeholder {
+      min-height: 230px;
+      border-radius: 18px;
+      border: 1.5px dashed rgba(34, 211, 238, 0.34);
+      background:
+        linear-gradient(180deg, rgba(6, 10, 18, 0.62), rgba(7, 11, 18, 0.72)),
+        radial-gradient(circle at top right, rgba(34, 211, 238, 0.10), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(255, 138, 61, 0.10), transparent 30%);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 26px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mermaid-placeholder::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 14px;
+      border: 1px dashed rgba(255,255,255,0.06);
+      pointer-events: none;
+    }
+
+    .placeholder-content {
+      max-width: 430px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .placeholder-icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 12px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(255, 138, 61, 0.16));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .placeholder-title {
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .placeholder-text {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .placeholder-code {
+      display: inline-flex;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.045);
+      color: #d9ecff;
+      font-size: 0.8rem;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 0.79rem;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.045);
+      color: #fff;
+    }
+
+    .badge-status .signal {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 14px currentColor;
+    }
+
+    .implemented { color: var(--lime); }
+    .ready { color: var(--cyan-2); }
+    .partial { color: var(--orange-2); }
+
+    .list-check {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0;
+    }
+
+    .list-check li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+
+    .list-check li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--cyan-2);
+      font-weight: 700;
+    }
+
+    .manifest-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .manifest-item {
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .manifest-item b {
+      display: block;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+
+    .manifest-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .manifest-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .manifest-link:hover {
+      color: #fff;
+      border-color: rgba(34, 211, 238, 0.34);
+      box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.14);
+    }
+
+    .footer {
+      max-width: calc(var(--content) + 40px);
+      margin: 0 auto;
+      padding: 24px 20px 46px;
+    }
+
+    .footer-box {
+      border-radius: 28px;
+      padding: 24px 26px;
+      background: linear-gradient(180deg, rgba(8, 12, 20, 0.8), rgba(7, 11, 18, 0.92));
+      border: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .footer-box strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .footer-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      max-width: 760px;
+    }
+
+    .fade-up {
+      opacity: 1;
+      transform: none;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (max-width: 1180px) {
+      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .hero-grid, .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 900px) {
+      .nav-toggle { display: inline-flex; }
+      .nav-links {
+        position: absolute;
+        top: calc(var(--nav-h) + 10px);
+        left: 16px;
+        right: 16px;
+        display: none;
+        padding: 12px;
+        background: rgba(6, 10, 18, 0.98);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+      .nav-links.open { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav-links a { width: 100%; justify-content: center; }
+      .hero-panel { padding: 26px; }
+      .hero-grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .section-inner { padding: 24px 18px; }
+      .section-head { flex-direction: column; }
+      .brand-copy span { max-width: 180px; }
+    }
+
+    @media (max-width: 580px) {
+      .stats { grid-template-columns: 1fr; }
+      .hero-mini-grid { grid-template-columns: 1fr; }
+      .nav-links.open { grid-template-columns: 1fr; }
+      .hero-panel { border-radius: 26px; }
+      .section-inner, .footer-box { border-radius: 22px; }
+      .manifest-item { grid-template-columns: 1fr; }
+      .brand-copy strong { font-size: 0.9rem; }
+    }
+  
+
+    .diagram-render {
+      min-height: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      background:
+        linear-gradient(180deg, rgba(10, 16, 28, 0.95), rgba(8, 12, 22, 0.98)),
+        radial-gradient(circle at top right, rgba(34, 211, 238, 0.08), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(255, 138, 61, 0.08), transparent 35%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 16px 40px rgba(0,0,0,0.22);
+      padding: 14px;
+      overflow: hidden;
+      display: block;
+    }
+
+    .diagram-render {
+      position: relative;
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+      cursor: zoom-in;
+    }
+
+    .diagram-render:hover {
+      border-color: rgba(34, 211, 238, 0.34);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 16px 46px rgba(0,0,0,0.28), 0 0 0 1px rgba(34, 211, 238, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .diagram-render img,
+    .diagram-render svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      background: #ffffff;
+      max-height: 470px;
+      object-fit: contain;
+    }
+
+    .diagram-render .mermaid {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 290px;
+      padding: 8px;
+    }
+
+    .diagram-render .mermaid svg {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+
+    .diagram-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .diagram-btn {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font: inherit;
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .diagram-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(34, 211, 238, 0.28);
+      color: #fff;
+    }
+
+    .diagram-btn.primary {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(255, 138, 61, 0.16));
+      border-color: rgba(34, 211, 238, 0.34);
+    }
+
+    .diagram-note-inline {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .diagram-render::after {
+      content: "Nhấp để phóng to";
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(6, 10, 18, 0.72);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #d6e5f8;
+      font-size: 0.76rem;
+      letter-spacing: 0.01em;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: .2s ease;
+      pointer-events: none;
+    }
+
+    .diagram-render:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .diagram-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(1, 4, 10, 0.76);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+
+    .diagram-modal.open { display: flex; }
+
+    .diagram-modal-panel {
+      width: min(1480px, 96vw);
+      height: min(92vh, 980px);
+      background: linear-gradient(180deg, rgba(10, 16, 28, 0.98), rgba(6, 10, 18, 0.98));
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 24px;
+      box-shadow: 0 32px 100px rgba(0,0,0,0.52);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+
+    .diagram-modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .diagram-modal-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .diagram-modal-subtitle {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 400;
+    }
+
+    .diagram-modal-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .diagram-modal-body {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(236, 241, 248, 0.98), rgba(225, 232, 242, 0.98));
+      cursor: grab;
+    }
+
+    .diagram-modal-body.dragging { cursor: grabbing; }
+
+    .diagram-modal-content img,
+    .diagram-modal-content svg {
+      display: block;
+      max-width: min(1400px, 92vw);
+      height: auto;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 12px 40px rgba(15,23,42,0.18);
+    }
+
+    .diagram-modal-canvas {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    .diagram-modal-content {
+      transform-origin: center center;
+      will-change: transform;
+      user-select: none;
+      max-width: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 320px;
+      min-height: 220px;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 18px 54px rgba(0,0,0,0.18);
+      padding: 16px;
+    }
+
+    .diagram-modal-content img,
+    .diagram-modal-content svg,
+    .diagram-modal-content iframe {
+      max-width: none;
+      max-height: none;
+      width: auto;
+      height: auto;
+      display: block;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: none;
+    }
+
+    .diagram-modal-asset,
+    .diagram-modal-content img,
+    .diagram-modal-content svg {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+      flex: 0 0 auto;
+      object-fit: contain;
+    }
+
+    .diagram-modal-content iframe {
+      width: min(1320px, 88vw);
+      height: 74vh;
+      border: 0;
+      background: #fff;
+    }
+
+    .diagram-scale {
+      min-width: 68px;
+      text-align: center;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.84rem;
+    }
+
+    @media (max-width: 900px) {
+      .diagram-render { min-height: 240px; }
+      .diagram-modal { padding: 10px; }
+      .diagram-modal-panel { width: 100vw; height: 100vh; border-radius: 0; }
+      .diagram-modal-head { align-items: flex-start; }
+      .diagram-modal-controls { width: 100%; justify-content: flex-start; }
+    }
+</style>
+</head>
+<body>
+<div class="progress" id="progressBar"></div>
+<nav class="nav">
+<div class="nav-inner">
+<div class="brand">
+<div class="brand-mark">🎧</div>
+<div class="brand-copy">
+<strong>Smart Audio Guide — Vĩnh Khánh</strong>
+<span>PRD single-page • MAUI App + ASP.NET Core MVC Admin + SQL Server</span>
+</div>
+</div>
+<button aria-label="Mở menu điều hướng" class="nav-toggle" id="navToggle">☰</button>
+<ul class="nav-links" id="navLinks">
+<li><a href="#overview">Tổng quan</a></li>
+<li><a href="#goals">Mục tiêu</a></li>
+<li><a href="#architecture">Kiến trúc</a></li>
+<li><a href="#admin">Web Admin</a></li>
+<li><a href="#mobile">Mobile App</a></li>
+<li><a href="#database">Database</a></li>
+<li><a href="#api">API</a></li>
+<li><a href="#flows">Luồng nghiệp vụ</a></li>
+<li><a href="#rules">Quy tắc</a></li>
+<li><a href="#nfr">NFR</a></li>
+<li><a href="#diagrams">Sơ đồ</a></li>
+</ul>
+</div>
+</nav>
+<main class="shell">
+<header class="hero fade-up">
+<div class="hero-panel">
+<span class="eyebrow">Product Requirements Document • V1.0</span>
+<div class="hero-grid">
+<div>
+<h1>PRD hệ thống Smart Audio Guide cho phố ẩm thực Vĩnh Khánh</h1>
+<p class="lead">
+              Tài liệu này mô tả sản phẩm ở mức nghiệp vụ và kỹ thuật cho hệ thống gồm <strong>Web Admin ASP.NET Core MVC</strong>,
+              <strong>Mobile App .NET MAUI</strong> và <strong>SQL Server Database</strong>. Nội dung bám theo mã nguồn hiện tại,
+              tập trung vào cấu trúc hệ thống, cơ sở dữ liệu, API và các luồng xử lý chính.
+            </p>
+<div class="chips">
+<span class="chip"><span class="dot" style="color: var(--cyan)"></span>ASP.NET Core 8 MVC</span>
+<span class="chip"><span class="dot" style="color: var(--orange)"></span>.NET MAUI</span>
+<span class="chip"><span class="dot" style="color: var(--purple)"></span>SQL Server</span>
+<span class="chip"><span class="dot" style="color: var(--lime)"></span>Geofence + TTS 5 ngôn ngữ</span>
+<span class="chip"><span class="dot" style="color: var(--cyan-2)"></span>Single-page PRD</span>
+</div>
+</div>
+<aside class="hero-aside">
+<div class="hero-note">
+<h3>Phạm vi hệ thống</h3>
+<p>
+                Web Admin là nơi quản trị dữ liệu POI, user và dashboard; Mobile App chịu trách nhiệm bản đồ, GPS, geofence,
+                thuyết minh tự động và trải nghiệm người dùng cuối; SQL Server là nguồn dữ liệu trung tâm của nền tảng.
+              </p>
+<div class="hero-mini-grid">
+<div class="hero-mini">
+<b>5</b>
+<span>Ngôn ngữ mô tả / TTS</span>
+</div>
+<div class="hero-mini">
+<b>4</b>
+<span>Bảng dữ liệu lõi</span>
+</div>
+<div class="hero-mini">
+<b>7</b>
+<span>Stored procedures</span>
+</div>
+<div class="hero-mini">
+<b>13+</b>
+<span>Tính năng mobile chính</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</header>
+<section class="section fade-up" id="overview">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">01 • Product overview</span>
+<h2>Tổng quan sản phẩm</h2>
+<p class="section-desc">
+              Smart Audio Guide Vĩnh Khánh là hệ thống hỗ trợ khách tham quan tiếp cận phố ẩm thực Vĩnh Khánh bằng trải nghiệm bản đồ,
+              định vị và thuyết minh tự động theo ngôn ngữ đã chọn. Trục chính của giải pháp là <strong>POI (Point of Interest)</strong> — mỗi quán ăn
+              được mô tả bằng dữ liệu vị trí, bán kính kích hoạt, mức ưu tiên và nội dung đa ngôn ngữ.
+            </p>
+</div>
+<span class="section-tag">Business + Technical PRD</span>
+</div>
+<div class="stats">
+<article class="stat"><span class="value">3</span><span class="label">Lớp hệ thống chính</span></article>
+<article class="stat"><span class="value">6</span><span class="label">API core cho mobile</span></article>
+<article class="stat"><span class="value">5</span><span class="label">View dashboard SQL</span></article>
+<article class="stat"><span class="value">1</span><span class="label">Trigger cập nhật thời gian</span></article>
+<article class="stat"><span class="value">20</span><span class="label">POI seed dữ liệu demo</span></article>
+<article class="stat"><span class="value">200</span><span class="label">Narration logs seed</span></article>
+</div>
+<div class="grid-2" style="margin-top:18px;">
+<article class="card">
+<h3>Bài toán cần giải quyết</h3>
+<ul class="list-check">
+<li>Giới thiệu các quán ăn theo ngữ cảnh vị trí thay vì yêu cầu người dùng tự tìm từng quán.</li>
+<li>Cho phép quản trị viên cập nhật nội dung, hình ảnh và tọa độ tập trung qua web.</li>
+<li>Hỗ trợ trải nghiệm đa ngôn ngữ với cơ chế fallback để app luôn có nội dung đọc.</li>
+<li>Tạo nền tảng dashboard theo dõi lượt nghe, thiết bị online và mức độ quan tâm theo loại quán.</li>
+</ul>
+</article>
+<article class="card">
+<h3>Giá trị cốt lõi của MVP</h3>
+<ul class="list-check">
+<li>Tập trung vào một tuyến phố cụ thể nên dữ liệu POI nhỏ, dễ kiểm soát và dễ demo end-to-end.</li>
+<li>Phân tách rõ trách nhiệm: web ghi dữ liệu, app đọc và tiêu thụ dữ liệu, DB giữ thống kê tập trung.</li>
+<li>Giảm chi phí triển khai nhờ tận dụng .NET MAUI, MAUI Maps, TTS hệ điều hành và kiến trúc backend tương đối gọn cho phạm vi đồ án.</li>
+<li>Thuận lợi cho đồ án vì vừa có nghiệp vụ quản trị, vừa có mobile map/GPS/TTS và vừa có database design.</li>
+</ul>
+</article>
+</div>
+<div class="table-wrap" style="margin-top:18px;">
+<h3>Ma trận hiện trạng theo source code</h3>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Năng lực</th>
+<th>Web / Backend</th>
+<th>App MAUI</th>
+<th>Đánh giá trạng thái</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRUD POI + quản trị dữ liệu</td>
+<td>Đã có đầy đủ màn hình, controller, upload ảnh, parse Google Maps và soft delete.</td>
+<td>Đọc dữ liệu POI từ API và render lên map.</td>
+<td><strong>End-to-end đã có</strong></td>
+</tr>
+<tr>
+<td>Geofence + auto narration</td>
+<td>Backend chỉ đóng vai trò cấp dữ liệu POI và lưu log nếu cần.</td>
+<td>Đã có GPS poll, Haversine, debounce, cooldown, queue TTS và mock GPS.</td>
+<td><strong>Logic cốt lõi đã có trên app</strong></td>
+</tr>
+<tr>
+<td>Đăng nhập / đăng ký mobile bằng JWT</td>
+<td>Đã có <code>/api/auth/login</code> và <code>/api/auth/register</code>.</td>
+<td>UI hiện vẫn đi theo <code>Preferences</code> cục bộ và guest mode.</td>
+<td><strong>Backend sẵn sàng, app còn partial</strong></td>
+</tr>
+<tr>
+<td>Heartbeat thiết bị online</td>
+<td>Đã có <code>/api/ping</code>, bảng <code>ActiveDevices</code> và dashboard online.</td>
+<td>Đã có helper phía app; cần nối vào flow chạy mặc định nếu muốn dùng end-to-end.</td>
+<td><strong>Khả dụng, cần hoàn thiện tích hợp</strong></td>
+</tr>
+<tr>
+<td>Ghi log narration vào analytics</td>
+<td>Đã có <code>/api/narration/log</code> và dashboard sử dụng bảng <code>NarrationLog</code>.</td>
+<td>Luồng demo hiện tập trung vào phát TTS; việc log sau khi phát cần gắn thêm ở runtime nếu muốn số liệu live.</td>
+<td><strong>Backend sẵn, app chưa phải luồng chính</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="highlight info" style="margin-top:18px;">
+<strong>Luồng thật hoàn chỉnh nhất ở phiên bản hiện tại:</strong> Admin CRUD POI trên web → app gọi <code>/api/pois</code> → map render lại → geofence và TTS hoạt động trên app. 
+          Các luồng auth JWT, ping thiết bị và narration logging đã có nền backend rõ ràng, nhưng mức độ gắn vào runtime app hiện thấp hơn nên cần ghi rõ trong PRD để tránh hiểu nhầm là đã hoàn tất 100%.
+        </div>
+</div>
+</section>
+<section class="section fade-up" id="goals">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">02 • Goals &amp; scope</span>
+<h2>Mục tiêu, đối tượng sử dụng và phạm vi</h2>
+<p class="section-desc">
+              Phần này mô tả mục tiêu sản phẩm theo hướng Business Analyst, nhưng vẫn bám đúng hiện trạng source code của hệ thống.
+            </p>
+</div>
+<span class="section-tag">Scope locked to current source</span>
+</div>
+<div class="grid-3">
+<article class="card">
+<h3>Mục tiêu nghiệp vụ</h3>
+<ul>
+<li>Cung cấp trải nghiệm tham quan ẩm thực có hướng dẫn âm thanh.</li>
+<li>Tăng khả năng khám phá quán theo khoảng cách thực tế trên bản đồ.</li>
+<li>Cho phép cập nhật nội dung tập trung từ web admin thay vì chỉnh sửa trực tiếp trong app.</li>
+<li>Tạo dữ liệu thống kê để kiểm tra màn dashboard và biểu đồ.</li>
+</ul>
+</article>
+<article class="card">
+<h3>Nhóm người dùng</h3>
+<ul>
+<li><strong>Admin:</strong> quản trị nội dung, người dùng, dashboard, kiểm tra trạng thái hệ thống.</li>
+<li><strong>Người dùng app:</strong> khách tham quan sử dụng GPS, bản đồ, tìm kiếm và nghe thuyết minh.</li>
+<li><strong>Guest mode:</strong> người dùng vào nhanh không cần tài khoản đầy đủ trên app.</li>
+</ul>
+</article>
+<article class="card">
+<h3>Out of scope cho phiên bản hiện tại</h3>
+<ul>
+<li>Không có CMS nâng cao ngoài CRUD POI và user.</li>
+<li>Không có cơ chế thanh toán, đặt chỗ, social feed hoặc review cộng đồng.</li>
+<li>Không có bản đồ offline đóng gói kiểu PMTiles như một số hệ khác.</li>
+<li>Mobile auth chưa đồng bộ hoàn chỉnh với backend JWT ở luồng đăng ký/đăng nhập hiện tại.</li>
+</ul>
+</article>
+</div>
+<div class="highlight warn">
+<strong>Ghi chú quan trọng về độ khớp source:</strong> backend đã có API <code>/api/auth/login</code> và <code>/api/auth/register</code>,
+          nhưng luồng đăng ký/đăng nhập hiện tại của app MAUI vẫn đang dùng <code>Preferences</code> cục bộ và chế độ <em>guest</em>.
+          Vì vậy PRD này mô tả rõ đây là <strong>khoảng trống tích hợp của phiên bản hiện tại</strong>, không xem đó là tính năng đã hoàn tất end-to-end.
+        </div>
+</div>
+</section>
+<section class="section fade-up" id="architecture">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">03 • Architecture</span>
+<h2>Kiến trúc tổng thể hệ thống</h2>
+<p class="section-desc">
+              Kiến trúc tổng quan gồm 3 khối: Mobile App, Web Admin/API và SQL Server. Web đóng vai trò trung gian giữa trải nghiệm quản trị và app người dùng,
+              đồng thời giữ nhiệm vụ xác thực, trả dữ liệu POI, nhận heartbeat và ghi log narration.
+            </p>
+</div>
+<span class="section-tag">3-layer architecture</span>
+</div>
+<div class="grid-3">
+<article class="card">
+<h3>App .NET MAUI</h3>
+<ul>
+<li>Hiển thị map, pins, nearby strip và filter/search.</li>
+<li>Theo dõi GPS, tính khoảng cách Haversine và kích hoạt geofence.</li>
+<li>Đọc mô tả qua TTS hệ điều hành, có queue và fallback ngôn ngữ.</li>
+<li>Hỗ trợ GPS giả lập, onboarding, guest mode và refresh dữ liệu.</li>
+</ul>
+</article>
+<article class="card">
+<h3>Web Admin / API</h3>
+<ul>
+<li>CRUD POI, user management, parse Google Maps link, upload ảnh.</li>
+<li>Dashboard thống kê theo ngày, theo loại quán, theo ngôn ngữ.</li>
+<li>Cookie auth cho web và JWT cho mobile API chạy song song.</li>
+<li>Phơi bày REST endpoints cho POI, login/register, ping và narration log.</li>
+</ul>
+</article>
+<article class="card">
+<h3>SQL Server Database</h3>
+<ul>
+<li>4 bảng lõi: <code>Users</code>, <code>PointsOfInterest</code>, <code>ActiveDevices</code>, <code>NarrationLog</code>.</li>
+<li>5 views dashboard để gom dữ liệu thống kê.</li>
+<li>7 stored procedures cho CRUD POI, user và upsert heartbeat.</li>
+<li>1 trigger tự động cập nhật <code>UpdatedAt</code> khi sửa POI.</li>
+</ul>
+</article>
+</div>
+
+<div class="diagram-shell" style="margin-top:18px;">
+<h3>Sơ đồ kiến trúc tổng thể</h3>
+<p class="diagram-meta">Mô tả mối quan hệ giữa mobile app, web admin, lớp API và cơ sở dữ liệu SQL Server.</p>
+<div class="diagram-render" id="diagram-system-architecture"><img alt="Sơ đồ kiến trúc tổng thể Mobile, Web Admin và SQL Server" loading="lazy" src="diagram/diagram-system-architecture.svg"/></div>
+</div>
+</div>
+</section>
+<section class="section fade-up" id="admin">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">04 • Web Admin</span>
+<h2>Khối Web Admin ASP.NET Core MVC</h2>
+<p class="section-desc">
+              Đây là bề mặt quản trị chính của hệ thống. Web xử lý CRUD POI, quản lý user, dashboard thống kê và cung cấp REST API cho mobile. Điểm cần phân biệt là: phần API auth/ping/narration log đã có ở backend, nhưng mức độ app MAUI sử dụng từng endpoint hiện chưa đồng đều.
+            </p>
+</div>
+<span class="section-tag">net8.0 • MVC + EF Core</span>
+</div>
+<div class="card-grid">
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Dashboard / Home</h3>
+<ul>
+<li>Thống kê tổng POI, POI active, user active, online devices, plays hôm nay và 30 ngày.</li>
+<li>Top 10 POI theo lượt nghe và số thiết bị duy nhất.</li>
+<li>Phân bố category và language bằng các truy vấn group-by.</li>
+<li>View dùng Chart.js cho line, doughnut và bar chart; có AJAX endpoint <code>/Home/OnlineCount</code> để làm mới số thiết bị online mỗi 30 giây.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>POI Management</h3>
+<ul>
+<li>Danh sách có search theo tên, filter category, tab xem đã xóa, phân trang 15 bản ghi mỗi trang.</li>
+<li>Form tạo/sửa hỗ trợ 5 ngôn ngữ mô tả, tọa độ, bán kính geofence, priority, ảnh và metadata.</li>
+<li>Soft delete và restore bằng <code>IsActive</code> thay vì xóa cứng.</li>
+<li>Update <code>UpdatedAt</code> rõ ràng ở controller và được DB trigger gia cố thêm.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Google Maps Parsing</h3>
+<ul>
+<li>AJAX endpoint <code>/Pois/ParseGmaps</code> nhận chuỗi và trả về <code>{ ok, lat, lng, method }</code>.</li>
+<li>Parser hỗ trợ 6 định dạng: tọa độ thô, <code>@lat,lng</code>, <code>?query</code>, iframe <code>!3d !2d</code>, <code>?ll</code>, URL path.</li>
+<li>Validate giới hạn lat/lng để chặn tọa độ không hợp lệ.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Image Pipeline</h3>
+<ul>
+<li>Validate MIME <code>jpg/png/webp</code> và kích thước tối đa 3 MB.</li>
+<li>Resize về cạnh tối đa 800 px bằng ImageSharp.</li>
+<li>Lưu file vào <code>/wwwroot/uploads/pois/{guid}.jpg</code>.</li>
+<li>Trả về URL tuyệt đối để app mobile gọi trực tiếp.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>User Management</h3>
+<ul>
+<li>Chỉ role <code>admin</code> mới vào được <code>/Users</code>.</li>
+<li>CRUD user, đổi role admin/user, hash mật khẩu bằng BCrypt work factor 11.</li>
+<li>Cho phép sửa mà để trống password để giữ nguyên hash cũ.</li>
+<li>Chặn vô hiệu hóa tài khoản <code>admin</code> gốc.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented on backend</div>
+<h3>Authentication Layer</h3>
+<ul>
+<li>Cookie authentication cho MVC pages, thời hạn 12 giờ, sliding expiration.</li>
+<li>JWT Bearer cho mobile API, HMAC-SHA256, mặc định 30 ngày.</li>
+<li>Anti-forgery cho POST form phía web.</li>
+<li>CORS hiện mở cho mọi origin ở môi trường demo app mobile.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Seed &amp; bootstrap</h3>
+<ul>
+<li><code>DataSeeder</code> tự tạo hai tài khoản mặc định: <code>admin/admin123</code> và <code>demo/demo123</code>.</li>
+<li>Schema SQL script tạo 4 bảng, 7 indexes, 1 trigger; script seed nạp 20 POI, 200 narration logs và 3 active devices mẫu.</li>
+<li>Cách khởi động phù hợp với đồ án: chạy SQL scripts trước, rồi mới chạy web để seeding user bằng C#.</li>
+</ul>
+</article>
+</div>
+<div class="highlight" style="margin-top:18px;">
+<strong>Kết luận cho khối Web Admin:</strong> phần web không chỉ là panel CRUD mà còn là API gateway tối thiểu cho app MAUI. 
+          Đây là khối đã hoàn thiện tương đối đồng đều nhất của hệ thống hiện tại: từ schema SQL, seeding, dashboard, form xử lý dữ liệu đến auth đa scheme.
+        </div>
+<div class="grid-2" style="margin-top:18px;">
+<div class="subpanel">
+<h3>Controllers &amp; services chính</h3>
+<div class="pill-row">
+<span class="pill cyan">AuthController</span>
+<span class="pill cyan">HomeController</span>
+<span class="pill cyan">PoisController</span>
+<span class="pill cyan">UsersController</span>
+<span class="pill orange">ApiAuthController</span>
+<span class="pill orange">ApiPoisController</span>
+<span class="pill orange">ApiPingController</span>
+<span class="pill orange">ApiNarrationController</span>
+<span class="pill purple">JwtService</span>
+<span class="pill purple">ImageService</span>
+<span class="pill purple">GmapsParser</span>
+<span class="pill purple">DataSeeder</span>
+</div>
+</div>
+<div class="subpanel">
+<h3>Quy tắc dữ liệu quan trọng</h3>
+<ul>
+<li><code>Category</code> chỉ nhận: <code>Oc</code>, <code>Nuong</code>, <code>Lau</code>, <code>CaPhe</code>, <code>Khac</code>.</li>
+<li><code>DescriptionVi</code> và <code>DescriptionEn</code> là bắt buộc.</li>
+<li><code>RadiusMeters</code> giới hạn 1–500; <code>Priority</code> giới hạn 1–10.</li>
+<li>Login web chỉ cho role <code>admin</code> truy cập dashboard và các trang quản trị.</li>
+</ul>
+</div>
+</div>
+<div class="diagram-grid" style="margin-top:18px;">
+
+<div class="diagram-card">
+<h3>Sequence tạo POI từ Web Admin</h3>
+<p class="diagram-meta">Luồng thực tế trong source: mở form, parse link Google Maps theo AJAX, upload ảnh bằng ImageSharp rồi lưu PointOfInterest qua EF Core.</p>
+<div class="diagram-render" id="diagram-poi-create-sequence"><img alt="Sequence tạo POI từ Web Admin" loading="lazy" src="diagram/diagram-poi-create-sequence.svg"/></div>
+</div>
+
+<div class="diagram-card">
+<h3>Flow quản lý POI</h3>
+<p class="diagram-meta">Các nhánh list, edit, soft delete và restore của module quản lý POI.</p>
+<div class="diagram-render" id="diagram-poi-crud-flow"><img alt="Flow quản lý POI" loading="lazy" src="diagram/diagram-poi-crud-flow.svg"/></div>
+</div>
+
+<div class="diagram-card">
+<h3>Sơ đồ xác thực Web và API</h3>
+<p class="diagram-meta">Web admin dùng Cookie auth; mobile dùng JWT cho login/register; các API đọc POI, ping và narration log hoạt động theo controller hiện tại.</p>
+<div class="diagram-render" id="diagram-web-api-auth"><img alt="Sơ đồ xác thực Web và API" loading="lazy" src="diagram/diagram-web-api-auth.svg"/></div>
+</div>
+</div>
+</div>
+</section>
+<section class="section fade-up" id="mobile">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">05 • Mobile App</span>
+<h2>Khối Mobile App .NET MAUI</h2>
+<p class="section-desc">
+              App là bề mặt tương tác cho khách tham quan: hiển thị bản đồ, lọc và tìm kiếm quán, theo dõi GPS, tự động phát thuyết minh,
+              mô phỏng GPS khi demo và tải lại dữ liệu POI từ web.
+            </p>
+</div>
+<span class="section-tag">MAUI Map + Geofence + TTS</span>
+</div>
+<div class="grid-3">
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Map &amp; discovery</h3>
+<ul>
+<li>Map hiển thị pins theo category, zoom về khu vực Vĩnh Khánh khi vào màn hình chính.</li>
+<li>Search theo tên quán, filter chips theo category và nearby strip theo khoảng cách thực tế.</li>
+<li>Cho phép pin một quán ở xa lên đầu strip nếu người dùng chủ động chọn quán đó.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Location tracking</h3>
+<ul>
+<li>Xin quyền <code>LocationWhenInUse</code> khi bắt đầu.</li>
+<li>Vòng lặp vị trí mỗi 2 giây với yêu cầu chính xác tốt, timeout 5 giây.</li>
+<li>Geofence chỉ được kích hoạt khi độ chính xác GPS ≤ 50m.</li>
+<li>Trạng thái GPS được phát qua event để cập nhật UI.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Geofence engine</h3>
+<ul>
+<li>Tính Haversine user ↔ tất cả POI.</li>
+<li>Debounce 3 giây trước khi coi là đã thực sự vào vùng.</li>
+<li>Cooldown 5 phút để tránh phát lại cùng một quán liên tục.</li>
+<li>Nếu nhiều POI cùng đủ điều kiện, ưu tiên POI gần nhất.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Narration service</h3>
+<ul>
+<li>Dùng queue nội bộ để tránh overlap âm thanh.</li>
+<li>Dùng <code>TextToSpeech.Default.GetLocalesAsync()</code> để tìm locale phù hợp.</li>
+<li>Nếu không thấy locale của ngôn ngữ yêu cầu thì fallback sang English.</li>
+<li>Cho phép dừng toàn bộ hàng đợi khi user đổi ngôn ngữ hoặc chạm vào vùng khác.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status implemented"><span class="signal"></span>Implemented</div>
+<h3>Offline fallback</h3>
+<ul>
+<li><code>PoiRepository.LoadAllAsync()</code> ưu tiên API; nếu lỗi thì dùng seed data cục bộ.</li>
+<li>Seed data chứa danh sách quán demo quanh tuyến Vĩnh Khánh.</li>
+<li>Nếu API không truy cập được thì app vẫn giữ luồng demo bằng seed data; phần hiển thị hình ảnh không phải điều kiện bắt buộc để geofence/TTS hoạt động.</li>
+</ul>
+</article>
+<article class="card">
+<div class="badge-status partial"><span class="signal"></span>Partial integration</div>
+<h3>Auth &amp; onboarding</h3>
+<ul>
+<li>App quyết định trang khởi đầu bằng <code>Preferences</code>: <code>onboarding_done</code> và <code>logged_in</code>.</li>
+<li>Onboarding hiện có 4 slide giới thiệu phố Vĩnh Khánh, GPS, TTS 5 ngôn ngữ và cơ chế chống nhiễu.</li>
+<li>Có guest mode, tài khoản <code>admin/1234</code> trên app và local register/login bằng <code>Preferences</code>.</li>
+<li>Backend JWT đã sẵn sàng, nhưng mobile login/register chưa nối hoàn toàn với API ở luồng hiện tại.</li>
+</ul>
+</article>
+</div>
+<div class="highlight warn" style="margin-top:18px;">
+<strong>Điểm cần nói thật khi bảo vệ đồ án:</strong> app MAUI hiện làm rất tốt phần bản đồ, geofence, mock GPS, refresh POI và TTS đa ngôn ngữ;
+          tuy nhiên luồng xác thực mobile bằng backend JWT vẫn chưa thay thế hoàn toàn login/register local. Việc mô tả rõ ranh giới này sẽ làm PRD đáng tin hơn.
+        </div>
+<div class="grid-2" style="margin-top:18px;">
+<div class="subpanel">
+<h3>Service architecture trên app</h3>
+<div class="pill-row">
+<span class="pill cyan">LocationTrackingService</span>
+<span class="pill cyan">MockGpsService</span>
+<span class="pill cyan">GeofenceService</span>
+<span class="pill cyan">NarrationService</span>
+<span class="pill orange">PoiRepository</span>
+<span class="pill orange">ApiService</span>
+<span class="pill purple">EventBus</span>
+<span class="pill purple">MapPage</span>
+</div>
+</div>
+<div class="subpanel">
+<h3>Business rules trên app</h3>
+<ul>
+<li>Fallback mô tả theo thứ tự: ngôn ngữ đang chọn → English → Vietnamese.</li>
+<li>Nearby popup hiển thị bán kính 500m; nearby strip ưu tiên nhóm trong 50m.</li>
+<li>Mock GPS hiện dùng chủ yếu cho teleport bằng cách chạm map; service cũng có logic auto-walk để mô phỏng di chuyển theo tuyến khi cần mở rộng demo.</li>
+<li>Help popup thay đổi nội dung theo ngôn ngữ hiện tại.</li>
+</ul>
+</div>
+</div>
+<div class="diagram-grid" style="margin-top:18px;">
+<div class="diagram-card">
+<h3>Auto TTS khi đến gần quán</h3>
+<p class="diagram-meta">Flow cốt lõi của sản phẩm: startup → load POI → GPS → geofence → narration.</p>
+<div class="diagram-render" id="diagram-auto-tts-flow"><img alt="Flow auto TTS khi người dùng đến gần quán" loading="lazy" src="diagram/diagram-auto-tts-flow.svg"/></div>
+</div>
+<div class="diagram-card">
+<h3>Tap pin / card thủ công</h3>
+<p class="diagram-meta">Luồng user chủ động chọn quán để zoom map và phát thuyết minh.</p>
+<div class="diagram-render" id="diagram-manual-interaction-flow"><img alt="Flow tương tác thủ công khi chạm pin hoặc card" loading="lazy" src="diagram/diagram-manual-interaction-flow.svg"/></div>
+</div>
+<div class="diagram-card">
+<h3>Search / Filter</h3>
+<p class="diagram-meta">Luồng tìm kiếm theo tên và lọc theo category trên bản đồ.</p>
+<div class="diagram-render" id="diagram-search-filter-flow"><img alt="Flow tìm kiếm và lọc POI" loading="lazy" src="diagram/diagram-search-filter-flow.svg"/></div>
+</div>
+<div class="diagram-card">
+<h3>GPS giả lập</h3>
+<p class="diagram-meta">Dùng cho demo khi cần mô phỏng di chuyển và geofence.</p>
+<div class="diagram-render" id="diagram-mock-gps-flow"><img alt="Flow GPS giả lập" loading="lazy" src="diagram/diagram-mock-gps-flow.svg"/></div>
+</div>
+<div class="diagram-card">
+<h3>Xử lý lỗi GPS / Network / TTS</h3>
+<p class="diagram-meta">Mô tả fallback khi mất quyền vị trí, mất mạng hoặc locale không khả dụng.</p>
+<div class="diagram-render" id="diagram-error-handling-flow"><img alt="Flow xử lý lỗi GPS, mạng và TTS" loading="lazy" src="diagram/diagram-error-handling-flow.svg"/></div>
+</div>
+<div class="diagram-card">
+<h3>Onboarding / Login / Register</h3>
+<p class="diagram-meta">Luồng state khởi động app bằng Preferences hiện tại.</p>
+<div class="diagram-render" id="diagram-login-register-flow"><img alt="Flow đăng nhập và đăng ký trên mobile app" loading="lazy" src="diagram/diagram-login-register-flow.svg"/></div>
+</div>
+<div class="diagram-card">
+<h3>Refresh data từ Web Admin</h3>
+<p class="diagram-meta">App gọi API để lấy POI mới và fallback sang seed data khi lỗi.</p>
+<div class="diagram-render" id="diagram-refresh-data-flow"><img alt="Sequence refresh dữ liệu từ web admin API" loading="lazy" src="diagram/diagram-refresh-data-flow.svg"/></div>
+</div>
+<div class="diagram-card">
+<h3>Service Architecture của app</h3>
+<p class="diagram-meta">Mối quan hệ giữa Pages, Services và Models trong mobile app.</p>
+<div class="diagram-render" id="diagram-mobile-service-architecture"><img alt="Sơ đồ kiến trúc service của mobile app" loading="lazy" src="diagram/diagram-mobile-service-architecture.svg"/></div>
+</div>
+</div>
+</div>
+</section>
+<section class="section fade-up" id="database">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">06 • Data layer</span>
+<h2>Database design và mô hình dữ liệu</h2>
+<p class="section-desc">
+              Database <strong>VinhKhanhGuide</strong> là trung tâm dữ liệu của toàn bộ hệ thống. Thiết kế chọn hướng phẳng, rõ và dễ demo: dữ liệu mô tả đa ngôn ngữ nằm trực tiếp trên bảng POI,
+              còn analytics và online presence được tách thành 2 bảng chuyên biệt.
+            </p>
+</div>
+<span class="section-tag">SQL Server schema</span>
+</div>
+<div class="grid-2">
+<div class="table-wrap">
+<h3>Bảng dữ liệu lõi</h3>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Bảng</th>
+<th>Mục đích</th>
+<th>Điểm cần chú ý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Users</code></td>
+<td>Lưu tài khoản admin và user.</td>
+<td>Username unique, role chỉ có <code>admin</code> hoặc <code>user</code>, hash mật khẩu BCrypt.</td>
+</tr>
+<tr>
+<td><code>PointsOfInterest</code></td>
+<td>Lưu quán ăn, vị trí, bán kính, mô tả 5 ngôn ngữ, ảnh và metadata.</td>
+<td><code>DescriptionVi</code> và <code>DescriptionEn</code> bắt buộc; dùng <code>IsActive</code> để soft delete.</td>
+</tr>
+<tr>
+<td><code>ActiveDevices</code></td>
+<td>Lưu heartbeat của thiết bị mobile.</td>
+<td>Khóa chính là <code>DeviceId</code>; dùng <code>LastPingUtc</code> để tính online realtime.</td>
+</tr>
+<tr>
+<td><code>NarrationLog</code></td>
+<td>Ghi log mỗi lần app phát narration.</td>
+<td>Language bị ràng buộc 5 giá trị cố định; FK sang POI không cascade delete.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="table-wrap">
+<h3>Views, procedures và trigger</h3>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Số lượng</th>
+<th>Nội dung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Views</td>
+<td>5</td>
+<td><code>vw_OnlineUsers</code>, <code>vw_TopPlayedPois</code>, <code>vw_LanguageStats</code>, <code>vw_DailyPlays</code>, <code>vw_UserStats</code>.</td>
+</tr>
+<tr>
+<td>Stored procedures</td>
+<td>7</td>
+<td><code>sp_InsertPoi</code>, <code>sp_UpdatePoi</code>, <code>sp_SoftDeletePoi</code>, <code>sp_RestorePoi</code>, <code>sp_RegisterUser</code>, <code>sp_LoginUser</code>, <code>sp_UpsertPing</code>.</td>
+</tr>
+<tr>
+<td>Trigger</td>
+<td>1</td>
+<td><code>tr_POI_UpdateTimestamp</code> tự gán <code>UpdatedAt</code> nếu câu lệnh update chưa set trường này.</td>
+</tr>
+<tr>
+<td>Indexes</td>
+<td>7</td>
+<td>Tối ưu cho user active/role, POI active/category/priority, active devices và narration logs.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="highlight">
+<strong>Lý do không tách bảng ngôn ngữ:</strong> với phạm vi hiện tại, việc để <code>DescriptionVi/En/Ja/Ko/Zh</code> nằm cùng một hàng POI giúp query đơn giản, dễ viết logic fallback trên app và giảm số lượng JOIN. Đổi lại, cách này sẽ kém linh hoạt hơn nếu sau này mở rộng thêm nhiều ngôn ngữ.
+        </div>
+
+<div class="diagram-shell" style="margin-top:18px;">
+<h3>ERD hệ thống</h3>
+<p class="diagram-meta">Sơ đồ thực thể và quan hệ giữa Users, PointsOfInterest, ActiveDevices và NarrationLog.</p>
+<div class="diagram-render" id="diagram-erd"><img alt="ERD hệ thống Smart Audio Guide" loading="lazy" src="diagram/diagram-erd.svg"/></div>
+</div>
+</div>
+</section>
+<section class="section fade-up" id="api">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">07 • API surface</span>
+<h2>Hợp đồng API cho mobile app</h2>
+<p class="section-desc">
+              Backend hiện phơi bày các endpoint cốt lõi cho mobile app: xác thực, tải POI, heartbeat và ghi nhận lượt phát narration. Bảng dưới đây ghi thêm trạng thái sử dụng thực tế để phân biệt rõ backend capability và mức độ app đang gọi.
+            </p>
+</div>
+<span class="section-tag">REST JSON</span>
+</div>
+<div class="table-wrap">
+<h3>Danh sách endpoint chính</h3>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Mục đích</th>
+<th>Ghi chú</th>
+<th>Trạng thái trong phiên bản hiện tại</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/api/auth/login</code></td>
+<td>Đăng nhập API, trả JWT + user info.</td>
+<td>Có thể auto upsert device nếu request kèm <code>deviceId</code>.</td>
+<td><span class="pill orange">Backend sẵn</span> <span class="pill purple">App chưa dùng làm flow chính</span></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/auth/register</code></td>
+<td>Tạo user mới và trả JWT.</td>
+<td>Role mặc định là <code>user</code>; password tối thiểu 6 ký tự phía backend.</td>
+<td><span class="pill orange">Backend sẵn</span> <span class="pill purple">App còn đăng ký local</span></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/pois</code></td>
+<td>Trả danh sách POI active cho app.</td>
+<td>Cho phép filter <code>?category=Oc</code>; sort theo priority giảm dần.</td>
+<td><span class="pill cyan">Đang được app gọi trực tiếp</span></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/pois/{id}</code></td>
+<td>Lấy chi tiết một POI active.</td>
+<td>404 nếu POI không tồn tại hoặc đã bị vô hiệu hóa.</td>
+<td><span class="pill orange">API sẵn sàng</span></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/ping</code></td>
+<td>Upsert heartbeat của thiết bị.</td>
+<td>Không bắt buộc auth để hỗ trợ cả thiết bị ẩn danh.</td>
+<td><span class="pill orange">Backend sẵn</span> <span class="pill purple">App chưa gọi mặc định</span></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/narration/log</code></td>
+<td>Ghi log sau khi app phát narration.</td>
+<td><code>language</code> phải thuộc 1 trong 5 giá trị cho phép.</td>
+<td><span class="pill orange">Backend sẵn</span> <span class="pill purple">Flow phụ trong demo</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="grid-2" style="margin-top:18px;">
+<div class="subpanel">
+<h3>Mẫu request/response tiêu biểu</h3>
+<ul>
+<li><code>POST /api/auth/login</code> nhận <code>{ username, password, deviceId, platform }</code> và trả <code>{ token, user }</code>.</li>
+<li><code>POST /api/ping</code> nhận <code>{ deviceId, userId, platform, appVersion }</code>.</li>
+<li><code>POST /api/narration/log</code> nhận <code>{ poiId, deviceId, language }</code>.</li>
+</ul>
+</div>
+<div class="subpanel">
+<h3>Điểm cần lưu ý cho tích hợp</h3>
+<ul>
+<li><code>ApiService</code> trên app đang cấu hình <code>BaseUrl = http://10.0.2.2:5000</code> cho Android emulator.</li>
+<li><code>LoadPoisAsync()</code> timeout 10 giây và trả <code>null</code> nếu lỗi mạng.</li>
+<li>App hiện đã dùng API để tải POI; auth mobile, ping runtime và narration logging cần được nối đầy đủ hơn nếu muốn hoàn thiện vòng đời user end-to-end.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="section fade-up" id="flows">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">08 • Core flows</span>
+<h2>Luồng nghiệp vụ quan trọng end-to-end</h2>
+<p class="section-desc">
+              Nhóm flow dưới đây là phần cốt lõi cần demo khi bảo vệ đồ án: tạo POI trên web, refresh app, tự phát narration khi đến gần và ghi nhận thống kê về backend.
+            </p>
+</div>
+<span class="section-tag">Demo critical flows</span>
+</div>
+<div class="timeline">
+<h3>Flow A — Từ Web Admin đến Mobile App</h3>
+<div class="timeline-item">
+<h4>1. Admin thêm hoặc sửa POI trên web</h4>
+<p>Điền form, parse link Google Maps, tải ảnh lên, nhập mô tả đa ngôn ngữ và lưu vào database.</p>
+</div>
+<div class="timeline-item">
+<h4>2. Database commit dữ liệu và cập nhật timestamp</h4>
+<p>POI được lưu trong <code>PointsOfInterest</code>; <code>UpdatedAt</code> được set ở controller và trigger DB bảo toàn.</p>
+</div>
+<div class="timeline-item">
+<h4>3. App gọi refresh hoặc mở lại MapPage</h4>
+<p><code>PoiRepository.LoadAllAsync()</code> gọi <code>/api/pois</code>; nếu lỗi mạng thì fallback seed data.</p>
+</div>
+<div class="timeline-item">
+<h4>4. User đi vào vùng geofence</h4>
+<p>App tính Haversine với từng POI, lọc theo accuracy và kiểm tra debounce/cooldown trước khi phát.</p>
+</div>
+<div class="timeline-item">
+<h4>5. Narration được phát và có thể ghi log</h4>
+<p>Nếu tích hợp logging ở runtime, app gọi <code>/api/narration/log</code> để tăng dữ liệu analytics cho dashboard.</p>
+</div>
+</div>
+<div class="grid-2" style="margin-top:18px;">
+<div class="subpanel">
+<h3>Flow B — Luồng xác thực đang chạy thật trên app</h3>
+<ul>
+<li><code>App.CreateWindow()</code> đọc <code>onboarding_done</code> và <code>logged_in</code> từ <code>Preferences</code> để chọn Onboarding, LoginPage hoặc AppShell.</li>
+<li><code>LoginPage</code> hiện kiểm tra tài khoản <code>admin/1234</code> hoặc user local đã lưu bằng <code>Preferences</code>.</li>
+<li><code>RegisterPage</code> validate dữ liệu cục bộ rồi lưu user local; guest mode đi thẳng vào app.</li>
+<li>Flow này đang tồn tại thực tế trong source mobile, nên cần mô tả riêng với flow JWT backend.</li>
+</ul>
+</div>
+<div class="subpanel">
+<h3>Flow C — Luồng backend đã sẵn nhưng chưa phải luồng chính</h3>
+<ul>
+<li><code>/api/auth/login</code> và <code>/api/auth/register</code> trả JWT cùng user info.</li>
+<li><code>/api/ping</code> có thể upsert thiết bị online cho dashboard.</li>
+<li><code>/api/narration/log</code> có thể tăng analytics khi app log sau khi phát TTS.</li>
+<li>Đây là hướng mở rộng hợp lý để nâng cấp dự án từ bản demo kỹ thuật sang bản tích hợp đầy đủ hơn.</li>
+</ul>
+</div>
+</div>
+<div class="grid-2" style="margin-top:18px;">
+<div class="callout">
+<strong>Flow cốt lõi để demo với hội đồng</strong>
+<ul>
+<li>Login admin trên web.</li>
+<li>Tạo một POI mới với tọa độ hợp lệ và ảnh.</li>
+<li>Refresh app để xác nhận POI mới xuất hiện.</li>
+<li>Di chuyển hoặc dùng mock GPS để kích hoạt narration.</li>
+<li>Quay lại dashboard để đối chiếu số liệu và dữ liệu nền.</li>
+</ul>
+</div>
+<div class="callout">
+<strong>Điểm kiểm thử quan trọng</strong>
+<ul>
+<li>POI vừa tạo phải có <code>ImageUrl</code> tuyệt đối.</li>
+<li>Geofence không được kích hoạt nếu accuracy GPS kém hơn 50m.</li>
+<li>App không được crash nếu mạng lỗi hoặc locale TTS không có.</li>
+<li>Soft delete phải ẩn POI khỏi app nhưng không làm mất log lịch sử.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="section fade-up" id="rules">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">09 • Rules &amp; states</span>
+<h2>Quy tắc trạng thái và hằng số vận hành</h2>
+<p class="section-desc">
+              Đây là tập luật hệ thống cần được mô tả rõ trong PRD vì chúng chi phối cả trải nghiệm người dùng lẫn cách dữ liệu được bảo toàn trong database.
+            </p>
+</div>
+<span class="section-tag">State + constants</span>
+</div>
+<div class="grid-3">
+<article class="card">
+<h3>Hằng số geofence</h3>
+<ul>
+<li>Debounce: <strong>3 giây</strong>.</li>
+<li>Cooldown: <strong>5 phút</strong>.</li>
+<li>GPS poll: <strong>2 giây</strong>.</li>
+<li>Accuracy threshold: <strong>50m</strong>.</li>
+<li>Nearby popup radius: <strong>500m</strong>.</li>
+<li>Strip ưu tiên quán trong <strong>50m</strong>.</li>
+</ul>
+</article>
+<article class="card">
+<h3>Ràng buộc dữ liệu POI</h3>
+<ul>
+<li><code>Name</code> tối đa 150 ký tự.</li>
+<li><code>RadiusMeters</code> trong khoảng 1–500.</li>
+<li><code>Priority</code> trong khoảng 1–10.</li>
+<li><code>Latitude</code> và <code>Longitude</code> phải nằm trong range hợp lệ.</li>
+<li><code>IsActive</code> điều khiển việc app có nhìn thấy POI hay không.</li>
+</ul>
+</article>
+<article class="card">
+<h3>Quy tắc fallback ngôn ngữ</h3>
+<ul>
+<li>App gọi <code>poi.GetDescription(lang)</code>.</li>
+<li>Thử ngôn ngữ đang chọn trước.</li>
+<li>Nếu trống thì fallback sang English.</li>
+<li>Nếu English cũng trống thì fallback Vietnamese.</li>
+<li>Vi và En là hai lớp an toàn bắt buộc ở DB.</li>
+</ul>
+</article>
+</div>
+<div class="diagram-grid" style="margin-top:18px;">
+
+<div class="diagram-card">
+<h3>Vòng đời bản ghi POI</h3>
+<p class="diagram-meta">DraftCreated → Active → SoftDeleted → Restore.</p>
+<div class="diagram-render" id="diagram-poi-state"><img alt="State diagram vòng đời POI" loading="lazy" src="diagram/diagram-poi-state.svg"/></div>
+</div>
+
+<div class="diagram-card">
+<h3>Luồng xác thực user</h3>
+<p class="diagram-meta">Registered → Login → Authenticated, có phân nhánh admin/user. Đây nên được hiểu là state machine của tầng backend/auth, tách biệt với flow local auth hiện tại trên app.</p>
+<div class="diagram-render" id="diagram-auth-state"><img alt="State diagram xác thực người dùng" loading="lazy" src="diagram/diagram-auth-state.svg"/></div>
+</div>
+</div>
+</div>
+</section>
+<section class="section fade-up" id="nfr">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">10 • Non-functional requirements</span>
+<h2>Yêu cầu phi chức năng, rủi ro và acceptance</h2>
+<p class="section-desc">
+              Vì đây là đồ án tích hợp nhiều lớp công nghệ, phần NFR cần nêu rõ yêu cầu tối thiểu để hội đồng có thể đánh giá tính hoàn chỉnh của giải pháp.
+            </p>
+</div>
+<span class="section-tag">NFR + risks + acceptance</span>
+</div>
+<div class="grid-3">
+<article class="card">
+<h3>Hiệu năng &amp; UX</h3>
+<ul>
+<li>Dashboard web phải mở được trong môi trường demo local với dataset seed.</li>
+<li>App phải render map và pins ổn định sau khi load dữ liệu POI.</li>
+<li>Narration không được overlap; queue phải xử lý nối tiếp.</li>
+<li>Refresh dữ liệu phải không làm app mất trạng thái ngôn ngữ hiện tại.</li>
+</ul>
+</article>
+<article class="card">
+<h3>Bảo mật</h3>
+<ul>
+<li>Password được hash BCrypt, không lưu plaintext.</li>
+<li>Cookie web dùng HttpOnly và SameSite=Lax.</li>
+<li>JWT phải dùng khóa bí mật đủ mạnh và có thời hạn hết hạn.</li>
+<li>POST form web cần anti-forgery; upload ảnh cần kiểm MIME và size.</li>
+</ul>
+</article>
+<article class="card">
+<h3>Độ tin cậy</h3>
+<ul>
+<li>Mất mạng vẫn phải xem được danh sách seed data.</li>
+<li>GPS không khả dụng phải hiện trạng thái thay vì crash.</li>
+<li>Locale TTS không tồn tại phải fallback English hoặc bỏ qua an toàn.</li>
+<li>Soft delete không được làm hỏng dashboard history.</li>
+</ul>
+</article>
+</div>
+<div class="grid-2" style="margin-top:18px;">
+<div class="subpanel">
+<h3>Rủi ro và khoảng trống hiện tại</h3>
+<ul>
+<li>Mobile login/register hiện còn lưu local bằng Preferences; chưa đồng bộ hoàn chỉnh với backend JWT.</li>
+<li>CORS đang mở toàn phần để tiện demo; production cần whitelist domain cụ thể.</li>
+<li>JWT hiện là access-token đơn giản, chưa có refresh token / revoke strategy.</li>
+<li>Nếu nhiều admin cùng sửa một POI, current behavior là <em>last write wins</em>.</li>
+</ul>
+</div>
+<div class="subpanel">
+<h3>Acceptance criteria của bản demo</h3>
+<ul>
+<li>Admin web đăng nhập được và CRUD ít nhất một POI mới.</li>
+<li>App refresh được dữ liệu từ web và thấy POI mới xuất hiện.</li>
+<li>Geofence kích hoạt narration khi user ở gần quán trong vùng hợp lệ, kể cả khi dùng mock GPS để demo.</li>
+<li>Soft delete làm POI biến mất khỏi app nhưng không phá thống kê.</li>
+<li>Dashboard hiển thị đúng số liệu seed; nếu nối narration logging/ping vào runtime thì số liệu mới phải phản ánh được.</li>
+</ul>
+</div>
+</div>
+<div class="highlight success">
+<strong>Khuyến nghị cho bước phát triển tiếp theo:</strong> ưu tiên nối hẳn mobile auth vào <code>/api/auth/login</code> và <code>/api/auth/register</code>,
+          sau đó bổ sung cơ chế ping định kỳ rõ ràng ở runtime app để dashboard online devices phản ánh đúng hành vi sử dụng thực tế.
+        </div>
+</div>
+</section>
+<section class="section fade-up" id="diagrams">
+<div class="section-inner">
+<div class="section-head">
+<div>
+<span class="section-kicker">11 • Danh mục sơ đồ</span>
+<h2>Danh mục sơ đồ</h2>
+<p class="section-desc">
+              Mở trực tiếp từng file SVG khi cần kiểm tra, thay thế hoặc cập nhật.
+            </p>
+</div>
+<span class="section-tag">15 sơ đồ SVG</span>
+</div>
+<div class="manifest-grid">
+<div class="manifest-item"><div><b>#diagram-system-architecture</b><span>Kiến trúc tổng thể Mobile ↔ Web Admin ↔ SQL Server.</span></div><a class="pill cyan manifest-link" href="diagram/diagram-system-architecture.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-poi-create-sequence</b><span>Sequence thêm POI với parse Google Maps và upload ảnh.</span></div><a class="pill cyan manifest-link" href="diagram/diagram-poi-create-sequence.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-poi-crud-flow</b><span>Flow list, edit, soft delete và restore của module POI.</span></div><a class="pill cyan manifest-link" href="diagram/diagram-poi-crud-flow.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-web-api-auth</b><span>Luồng xác thực Web Cookie và Mobile JWT.</span></div><a class="pill cyan manifest-link" href="diagram/diagram-web-api-auth.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-erd</b><span>ERD của các bảng lõi trong hệ thống.</span></div><a class="pill orange manifest-link" href="diagram/diagram-erd.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-poi-state</b><span>Vòng đời bản ghi POI: active, soft delete, restore.</span></div><a class="pill orange manifest-link" href="diagram/diagram-poi-state.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-auth-state</b><span>State diagram xác thực người dùng.</span></div><a class="pill orange manifest-link" href="diagram/diagram-auth-state.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-auto-tts-flow</b><span>Luồng GPS → geofence → narration tự động.</span></div><a class="pill purple manifest-link" href="diagram/diagram-auto-tts-flow.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-manual-interaction-flow</b><span>Luồng chạm pin hoặc card để nghe thuyết minh.</span></div><a class="pill purple manifest-link" href="diagram/diagram-manual-interaction-flow.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-search-filter-flow</b><span>Luồng tìm kiếm và lọc POI trên bản đồ.</span></div><a class="pill purple manifest-link" href="diagram/diagram-search-filter-flow.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-mock-gps-flow</b><span>Luồng GPS giả lập phục vụ kiểm thử và demo.</span></div><a class="pill purple manifest-link" href="diagram/diagram-mock-gps-flow.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-error-handling-flow</b><span>Fallback khi lỗi GPS, mạng hoặc TTS.</span></div><a class="pill purple manifest-link" href="diagram/diagram-error-handling-flow.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-login-register-flow</b><span>Onboarding, guest mode, login và register trên app.</span></div><a class="pill purple manifest-link" href="diagram/diagram-login-register-flow.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-refresh-data-flow</b><span>Sequence refresh dữ liệu từ API Web Admin.</span></div><a class="pill purple manifest-link" href="diagram/diagram-refresh-data-flow.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+<div class="manifest-item"><div><b>#diagram-mobile-service-architecture</b><span>Quan hệ giữa Pages, Services và Models của app MAUI.</span></div><a class="pill purple manifest-link" href="diagram/diagram-mobile-service-architecture.svg" rel="noopener" target="_blank">Mở SVG</a></div>
+</div></div>
+<div class="highlight" style="margin-top:18px;">
+<strong>Thư mục sơ đồ:</strong> tất cả hình được đọc từ <code>diagram/</code>. Chỉ cần giữ đúng tên file SVG là trang sẽ tự nhận.
+        </div>
+</div>
+</section>
+</main>
+<footer class="footer fade-up">
+<div class="footer-box">
+<div>
+<strong>PRD — Smart Audio Guide Vĩnh Khánh</strong>
+<p>
+          Tài liệu tập trung vào kiến trúc hệ thống, cơ sở dữ liệu, API và các luồng xử lý chính của đồ án.
+      
+        </p>
+</div>
+<span class="pill lime">Cập nhật 04/2026  by dindepzai</span>
+</div>
+</footer>
+<div aria-hidden="true" class="diagram-modal" id="diagramModal">
+<div class="diagram-modal-panel">
+<div class="diagram-modal-head">
+<div>
+<div class="diagram-modal-title" id="diagramModalTitle">Xem sơ đồ</div>
+<span class="diagram-modal-subtitle">Cuộn chuột hoặc dùng nút +/- để zoom. Giữ chuột trái và kéo để di chuyển. Nhấp đúp để về 100%.</span>
+</div>
+<div class="diagram-modal-controls">
+<button class="diagram-btn" id="diagramZoomOut" type="button">−</button>
+<div class="diagram-scale" id="diagramScale">100%</div>
+<button class="diagram-btn" id="diagramZoomIn" type="button">+</button>
+<button class="diagram-btn" id="diagramZoomReset" type="button">Reset</button>
+<button class="diagram-btn" id="diagramOpenTab" type="button">Mở tab</button>
+<button class="diagram-btn primary" id="diagramClose" type="button">Đóng</button>
+</div>
+</div>
+<div class="diagram-modal-body" id="diagramModalBody">
+<div class="diagram-modal-canvas">
+<div class="diagram-modal-content" id="diagramModalContent"></div>
+</div>
+</div>
+</div>
+</div>
+<script>
+    const progressBar = document.getElementById('progressBar');
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    const sections = [...document.querySelectorAll('section[id]')];
+    const anchors = [...document.querySelectorAll('.nav-links a')];
+    const fades = [...document.querySelectorAll('.fade-up')];
+    const activeMap = new Map(
+      anchors
+        .filter(a => (a.getAttribute('href') || '').startsWith('#'))
+        .map(a => [a.getAttribute('href').slice(1), a])
+    );
+
+    navToggle?.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+
+    const setActiveLink = (id) => {
+      anchors.forEach(a => {
+        const isActive = a.getAttribute('href') === `#${id}`;
+        a.classList.toggle('active', isActive);
+        if (isActive) {
+          a.setAttribute('aria-current', 'true');
+        } else {
+          a.removeAttribute('aria-current');
+        }
+      });
+    };
+
+    const getScrollSpyOffset = () => {
+      const navHeight = document.querySelector('.nav')?.offsetHeight || 72;
+      return navHeight + 32;
+    };
+
+    const detectActiveSection = () => {
+      if (!sections.length) return;
+
+      const offset = getScrollSpyOffset();
+      const scrollAnchor = window.scrollY + offset;
+      let currentSectionId = sections[0].id;
+
+      for (const section of sections) {
+        if (scrollAnchor >= section.offsetTop) {
+          currentSectionId = section.id;
+        } else {
+          break;
+        }
+      }
+
+      const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
+      if (nearBottom) {
+        currentSectionId = sections.at(-1).id;
+      }
+
+      setActiveLink(currentSectionId);
+    };
+
+    anchors.forEach(a => {
+      a.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+
+        const href = a.getAttribute('href') || '';
+        if (href.startsWith('#')) {
+          const id = href.slice(1);
+          if (activeMap.has(id)) {
+            setActiveLink(id);
+          }
+        }
+      });
+    });
+
+    let scrollTicking = false;
+    const onScrollSpy = () => {
+      if (scrollTicking) return;
+      scrollTicking = true;
+      window.requestAnimationFrame(() => {
+        detectActiveSection();
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = max > 0 ? window.scrollY / max : 0;
+        progressBar.style.transform = `scaleX(${progress})`;
+        scrollTicking = false;
+      });
+    };
+
+    const reveal = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          reveal.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 }) : null;
+
+    if (reveal) {
+      fades.forEach(el => reveal.observe(el));
+    } else {
+      fades.forEach(el => el.classList.add('visible'));
+    }
+
+    const diagramModal = document.getElementById('diagramModal');
+    const diagramModalBody = document.getElementById('diagramModalBody');
+    const diagramModalContent = document.getElementById('diagramModalContent');
+    const diagramModalTitle = document.getElementById('diagramModalTitle');
+    const diagramScale = document.getElementById('diagramScale');
+    const btnZoomIn = document.getElementById('diagramZoomIn');
+    const btnZoomOut = document.getElementById('diagramZoomOut');
+    const btnZoomReset = document.getElementById('diagramZoomReset');
+    const btnClose = document.getElementById('diagramClose');
+    const btnOpenTab = document.getElementById('diagramOpenTab');
+
+    let zoom = 1;
+    let panX = 0;
+    let panY = 0;
+    let currentImageSrc = null;
+    let dragState = null;
+    let modalAsset = null;
+    let modalBaseWidth = 0;
+    let modalBaseHeight = 0;
+
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+    const fitModalAsset = () => {
+      if (!modalAsset) return;
+      const bodyRect = diagramModalBody.getBoundingClientRect();
+      const maxW = Math.max(320, bodyRect.width - 96);
+      const maxH = Math.max(220, bodyRect.height - 96);
+
+      const naturalW = modalAsset.naturalWidth || modalAsset.viewBox?.baseVal?.width || modalAsset.getBBox?.().width || modalAsset.getBoundingClientRect().width || 1200;
+      const naturalH = modalAsset.naturalHeight || modalAsset.viewBox?.baseVal?.height || modalAsset.getBBox?.().height || modalAsset.getBoundingClientRect().height || 800;
+      const ratio = Math.min(maxW / naturalW, maxH / naturalH, 1);
+
+      modalBaseWidth = Math.max(320, naturalW * ratio);
+      modalBaseHeight = Math.max(220, naturalH * ratio);
+      modalAsset.style.width = `${modalBaseWidth * zoom}px`;
+      modalAsset.style.height = 'auto';
+    };
+
+    const applyDiagramTransform = () => {
+      diagramModalContent.style.transform = `translate(${panX}px, ${panY}px)`;
+      if (modalAsset) {
+        modalAsset.style.width = `${modalBaseWidth * zoom}px`;
+        modalAsset.style.height = 'auto';
+      }
+      diagramScale.textContent = `${Math.round(zoom * 100)}%`;
+    };
+
+    const resetDiagramTransform = () => {
+      zoom = 1;
+      panX = 0;
+      panY = 0;
+      fitModalAsset();
+      applyDiagramTransform();
+    };
+
+    const closeDiagramModal = () => {
+      diagramModal.classList.remove('open');
+      diagramModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      diagramModalContent.innerHTML = '';
+      currentImageSrc = null;
+      modalAsset = null;
+      modalBaseWidth = 0;
+      modalBaseHeight = 0;
+      resetDiagramTransform();
+    };
+
+    const openDiagramModal = (renderEl, title) => {
+      const image = renderEl.querySelector('img');
+      const svg = renderEl.querySelector('svg');
+      diagramModalContent.innerHTML = '';
+      currentImageSrc = image?.getAttribute('src') || null;
+      modalAsset = null;
+      modalBaseWidth = 0;
+      modalBaseHeight = 0;
+
+      if (image?.getAttribute('src')) {
+        const src = image.getAttribute('src');
+        const cloneImg = document.createElement('img');
+        cloneImg.loading = 'eager';
+        cloneImg.decoding = 'sync';
+        cloneImg.src = src;
+        cloneImg.alt = image.alt || title || 'Diagram';
+        cloneImg.draggable = false;
+        cloneImg.className = 'diagram-modal-asset';
+        cloneImg.addEventListener('load', () => {
+          modalAsset = cloneImg;
+          resetDiagramTransform();
+        }, { once: true });
+        cloneImg.addEventListener('error', () => {
+          diagramModalContent.innerHTML = '<div style="padding:24px 28px;color:#0f172a;font-weight:600;">Không tải được hình sơ đồ. Hãy kiểm tra lại đường dẫn file trong thư mục <code>diagram/</code>.</div>';
+        }, { once: true });
+        diagramModalContent.appendChild(cloneImg);
+      } else if (svg) {
+        const svgClone = svg.cloneNode(true);
+        svgClone.removeAttribute('style');
+        svgClone.classList.add('diagram-modal-asset');
+        diagramModalContent.appendChild(svgClone);
+        modalAsset = svgClone;
+      } else {
+        return;
+      }
+
+      diagramModalTitle.textContent = title || 'Xem sơ đồ';
+      btnOpenTab.style.display = currentImageSrc ? 'inline-flex' : 'none';
+      diagramModal.classList.add('open');
+      diagramModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => resetDiagramTransform());
+    };
+
+    const enhanceDiagramRender = (renderEl) => {
+      if (!renderEl || renderEl.dataset.enhanced === 'true') return;
+      renderEl.dataset.enhanced = 'true';
+      renderEl.tabIndex = 0;
+      renderEl.setAttribute('role', 'button');
+      renderEl.setAttribute('aria-label', 'Phóng to sơ đồ');
+
+      const card = renderEl.closest('.diagram-card, .diagram-shell');
+      const title = card?.querySelector('h3')?.textContent?.trim() || 'Xem sơ đồ';
+      const actions = document.createElement('div');
+      actions.className = 'diagram-actions';
+      actions.innerHTML = `<button type="button" class="diagram-btn primary">Phóng to</button><span class="diagram-note-inline">Cuộn để zoom, kéo để xem chi tiết.</span>`;
+
+      const zoomBtn = actions.querySelector('button');
+      zoomBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openDiagramModal(renderEl, title);
+      });
+
+      const img = renderEl.querySelector('img');
+      if (img?.getAttribute('src')) {
+        const openBtn = document.createElement('button');
+        openBtn.type = 'button';
+        openBtn.className = 'diagram-btn';
+        openBtn.textContent = 'Mở SVG';
+        openBtn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          window.open(img.getAttribute('src'), '_blank', 'noopener');
+        });
+        actions.insertBefore(openBtn, actions.querySelector('.diagram-note-inline'));
+      }
+
+      renderEl.insertAdjacentElement('afterend', actions);
+      renderEl.addEventListener('click', () => openDiagramModal(renderEl, title));
+      renderEl.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openDiagramModal(renderEl, title);
+        }
+      });
+    };
+
+    const enhanceAllDiagrams = () => {
+      document.querySelectorAll('.diagram-render').forEach(enhanceDiagramRender);
+    };
+
+    btnZoomIn?.addEventListener('click', () => {
+      zoom = clamp(zoom * 1.18, 0.35, 8);
+      applyDiagramTransform();
+    });
+    btnZoomOut?.addEventListener('click', () => {
+      zoom = clamp(zoom / 1.18, 0.35, 8);
+      applyDiagramTransform();
+    });
+    btnZoomReset?.addEventListener('click', resetDiagramTransform);
+    btnClose?.addEventListener('click', closeDiagramModal);
+    btnOpenTab?.addEventListener('click', () => {
+      if (currentImageSrc) window.open(currentImageSrc, '_blank', 'noopener');
+    });
+
+    diagramModal?.addEventListener('click', (event) => {
+      if (event.target === diagramModal) closeDiagramModal();
+    });
+
+    diagramModalBody?.addEventListener('wheel', (event) => {
+      if (!diagramModal.classList.contains('open')) return;
+      event.preventDefault();
+      const factor = event.deltaY < 0 ? 1.1 : 0.9;
+      zoom = clamp(zoom * factor, 0.35, 8);
+      applyDiagramTransform();
+    }, { passive: false });
+
+    diagramModalBody?.addEventListener('pointerdown', (event) => {
+      if (!diagramModal.classList.contains('open')) return;
+      dragState = { x: event.clientX, y: event.clientY, startX: panX, startY: panY };
+      diagramModalBody.classList.add('dragging');
+    });
+
+    diagramModalBody?.addEventListener('dragstart', (event) => {
+      event.preventDefault();
+    });
+
+    diagramModalBody?.addEventListener('mousedown', (event) => {
+      if (!diagramModal.classList.contains('open')) return;
+      dragState = { x: event.clientX, y: event.clientY, startX: panX, startY: panY };
+      diagramModalBody.classList.add('dragging');
+    });
+
+    window.addEventListener('pointermove', (event) => {
+      if (!dragState) return;
+      panX = dragState.startX + (event.clientX - dragState.x);
+      panY = dragState.startY + (event.clientY - dragState.y);
+      applyDiagramTransform();
+    });
+
+    window.addEventListener('mousemove', (event) => {
+      if (!dragState) return;
+      panX = dragState.startX + (event.clientX - dragState.x);
+      panY = dragState.startY + (event.clientY - dragState.y);
+      applyDiagramTransform();
+    });
+
+    window.addEventListener('pointerup', () => {
+      dragState = null;
+      diagramModalBody?.classList.remove('dragging');
+    });
+
+    window.addEventListener('resize', () => {
+      if (!diagramModal.classList.contains('open')) return;
+      fitModalAsset();
+      applyDiagramTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      dragState = null;
+      diagramModalBody?.classList.remove('dragging');
+    });
+
+    diagramModalContent?.addEventListener('dblclick', () => {
+      resetDiagramTransform();
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && diagramModal.classList.contains('open')) {
+        closeDiagramModal();
+      }
+    });
+
+    const initDiagramUI = () => {
+      enhanceAllDiagrams();
+      detectActiveSection();
+      onScrollSpy();
+    };
+
+    setTimeout(initDiagramUI, 200);
+
+    window.addEventListener('load', () => {
+      enhanceAllDiagrams();
+      detectActiveSection();
+    });
+    window.addEventListener('scroll', onScrollSpy, { passive: true });
+    window.addEventListener('resize', onScrollSpy);
+    window.addEventListener('hashchange', detectActiveSection);
+  </script>
+</body>
+</html>
