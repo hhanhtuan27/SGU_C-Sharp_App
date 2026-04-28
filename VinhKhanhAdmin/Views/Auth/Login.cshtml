@@ -1,0 +1,35 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div id="login-view">
+  <form class="login-card" method="post" asp-controller="Auth" asp-action="Login">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ReturnUrl" />
+
+    <div class="login-logo">🍜</div>
+    <h1>VinhKhanh Admin</h1>
+    <p class="subtitle">Hệ thống quản lý điểm ẩm thực Vĩnh Khánh — Quận 4</p>
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-error" style="margin-bottom: 16px;"></div>
+
+    <div class="field">
+      <label asp-for="Username"></label>
+      <input asp-for="Username" autocomplete="username" value="admin" />
+      <span asp-validation-for="Username" class="field-error"></span>
+    </div>
+
+    <div class="field">
+      <label asp-for="Password"></label>
+      <input asp-for="Password" autocomplete="current-password" value="admin123" />
+      <span asp-validation-for="Password" class="field-error"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+
+    <div class="login-hint">
+      💡 <strong>Demo:</strong> <code>admin</code> / <code>admin123</code>
+    </div>
+  </form>
+</div>

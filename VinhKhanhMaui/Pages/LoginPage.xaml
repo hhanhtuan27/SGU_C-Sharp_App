@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="VinhKhanhMaui.Pages.LoginPage"
+             BackgroundColor="#0F1724"
+             Shell.NavBarIsVisible="False">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="40" Spacing="14"
+                             VerticalOptions="Center"
+                             MaximumWidthRequest="400">
+
+			<Label Text="🍜" FontSize="64" HorizontalOptions="Center"
+                   Margin="0,0,0,6"/>
+			<Label Text="Vĩnh Khánh" FontSize="30" FontAttributes="Bold"
+                   TextColor="#FF8C42" HorizontalTextAlignment="Center"/>
+			<Label Text="Smart Audio Guide" FontSize="13"
+                   TextColor="#A0A5AF" HorizontalTextAlignment="Center"
+                   Margin="0,0,0,24"/>
+
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="16,12">
+				<Entry x:Name="TxtUsername" Placeholder="Tên đăng nhập"
+                       PlaceholderColor="#6B7280" TextColor="White"
+                       FontSize="15" BackgroundColor="Transparent"/>
+			</Border>
+
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="16,12">
+				<Entry x:Name="TxtPassword" Placeholder="Mật khẩu"
+                       PlaceholderColor="#6B7280" TextColor="White"
+                       FontSize="15" IsPassword="True"
+                       BackgroundColor="Transparent"/>
+			</Border>
+
+			<Button x:Name="BtnLogin" Text="Đăng nhập"
+                    BackgroundColor="#FF8C42" TextColor="Black"
+                    FontAttributes="Bold" FontSize="16"
+                    HeightRequest="52" CornerRadius="12"
+                    Margin="0,8,0,0"/>
+
+			<Button x:Name="BtnRegister" Text="Tạo tài khoản mới"
+                    BackgroundColor="Transparent" TextColor="#FF8C42"
+                    BorderColor="#FF8C42" BorderWidth="1"
+                    FontSize="14" HeightRequest="48"
+                    CornerRadius="12"/>
+
+			<Label Text="hoặc" FontSize="12" TextColor="#6B7280"
+                   HorizontalTextAlignment="Center" Margin="0,4"/>
+
+			<Button x:Name="BtnGuest" Text="Dùng thử không đăng nhập →"
+                    BackgroundColor="Transparent" TextColor="#A0A5AF"
+                    FontSize="13"/>
+
+			<Label Text="Demo: admin / 1234" FontSize="11"
+                   TextColor="#4B5563" HorizontalTextAlignment="Center"
+                   Margin="0,16,0,0"/>
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

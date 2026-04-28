@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
+             xmlns:models="clr-namespace:VinhKhanhMaui.Models"
+             x:Class="VinhKhanhMaui.Pages.MapPage"
+             BackgroundColor="#0F1724"
+             Shell.NavBarIsVisible="False">
+
+	<Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
+
+		<!-- ROW 0: Top bar -->
+		<Grid Grid.Row="0" BackgroundColor="#1A2332" Padding="8,10"
+              ColumnDefinitions="Auto,Auto,*,Auto">
+			<Button Grid.Column="0" Text="☰" FontSize="22"
+                    BackgroundColor="Transparent" TextColor="#FF8C42"
+                    WidthRequest="44" HeightRequest="44"
+                    Clicked="BtnMenu_Clicked"/>
+			<Label Grid.Column="1" Text="🍜" FontSize="22"
+                   VerticalOptions="Center" Margin="0,0,6,0"/>
+			<VerticalStackLayout Grid.Column="2" VerticalOptions="Center">
+				<Label Text="Vĩnh Khánh" FontSize="15"
+                       FontAttributes="Bold" TextColor="#FF8C42"/>
+				<Label x:Name="LblStatus" Text="Đang khởi động..."
+                       FontSize="10" TextColor="#A0A5AF"
+                       LineBreakMode="TailTruncation"/>
+			</VerticalStackLayout>
+			<Picker Grid.Column="3" x:Name="PickerLanguage"
+                    WidthRequest="120" BackgroundColor="#2A3545"
+                    TextColor="White" TitleColor="White" FontSize="11"
+                    ItemDisplayBinding="{Binding DisplayName}"
+                    SelectedIndexChanged="PickerLanguage_Changed"/>
+		</Grid>
+
+		<!-- ROW 1: Search bar -->
+		<Border Grid.Row="1" StrokeShape="RoundRectangle 10"
+                StrokeThickness="0" BackgroundColor="#1A2332"
+                Margin="10,4,10,4" Padding="12,6">
+			<Grid ColumnDefinitions="Auto,*,Auto">
+				<Label Grid.Column="0" Text="🔍" FontSize="14"
+                       VerticalOptions="Center" Margin="0,0,8,0"/>
+				<Entry Grid.Column="1" x:Name="TxtSearch"
+                       Placeholder="Tìm quán..."
+                       PlaceholderColor="#6B7280" TextColor="White"
+                       FontSize="13" BackgroundColor="Transparent"
+                       TextChanged="TxtSearch_TextChanged"/>
+				<Button Grid.Column="2" x:Name="BtnClearSearch"
+                        Text="✕" FontSize="12"
+                        BackgroundColor="Transparent" TextColor="#6B7280"
+                        WidthRequest="30" HeightRequest="30"
+                        IsVisible="False"
+                        Clicked="BtnClearSearch_Clicked"/>
+			</Grid>
+		</Border>
+
+		<!-- ROW 2: Filter chips -->
+		<ScrollView Grid.Row="2" Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    BackgroundColor="#0F1724" Padding="8,4">
+			<HorizontalStackLayout x:Name="FilterChips" Spacing="6"/>
+		</ScrollView>
+
+		<!-- ROW 3: GPS Simulator bar -->
+		<Border Grid.Row="3" x:Name="SimulatorBar"
+                BackgroundColor="#1E3A2E" Padding="12,10"
+                StrokeThickness="0" IsVisible="False">
+			<Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+				<Label Grid.Column="0" Text="🎮" FontSize="18"
+                       VerticalOptions="Center"/>
+				<Label Grid.Column="1" x:Name="LblSimStatus"
+                       Text="👆 Tap bản đồ để chọn vị trí"
+                       FontSize="12" TextColor="#4ADE80"
+                       FontAttributes="Bold" VerticalOptions="Center"
+                       LineBreakMode="TailTruncation"/>
+				<Button Grid.Column="2" Text="✕ Tắt" FontSize="12"
+                        BackgroundColor="#DC3545" TextColor="White"
+                        FontAttributes="Bold"
+                        HeightRequest="32" CornerRadius="8"
+                        Padding="10,0"
+                        Clicked="BtnSimClose_Clicked"/>
+			</Grid>
+		</Border>
+
+		<!-- ROW 4: Map (chiếm toàn bộ không gian) -->
+		<maps:Map Grid.Row="4" x:Name="MapView"
+                  IsShowingUser="True" MapType="Street"/>
+
+		<!-- ROW 5: Narrating banner -->
+		<Border Grid.Row="5" x:Name="NarratingBanner"
+                BackgroundColor="#FF8C42" Padding="14,10"
+                IsVisible="False" StrokeThickness="0">
+			<Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+				<Label Grid.Column="0" Text="🔊" FontSize="18"
+                       VerticalOptions="Center"/>
+				<Label Grid.Column="1" x:Name="LblNarrating"
+                       TextColor="Black" FontAttributes="Bold"
+                       FontSize="13" VerticalOptions="Center"
+                       LineBreakMode="TailTruncation"/>
+				<Button Grid.Column="2" Text="⏹" FontSize="16"
+                        BackgroundColor="Transparent" TextColor="Black"
+                        WidthRequest="36" HeightRequest="36"
+                        Clicked="BtnStopNarration_Clicked"/>
+			</Grid>
+		</Border>
+
+		<!-- ROW 6: Nearby strip -->
+		<Border Grid.Row="6" BackgroundColor="#1A2332"
+                StrokeThickness="0" Padding="0,6,0,6">
+			<VerticalStackLayout>
+				<Grid Padding="14,0,14,4" ColumnDefinitions="*,Auto">
+					<Label Grid.Column="0" Text="📍 Quán gần bạn"
+                           TextColor="#FF8C42" FontAttributes="Bold"
+                           FontSize="13"/>
+					<Label Grid.Column="1" x:Name="LblNearbyCount"
+                           TextColor="#A0A5AF" FontSize="11"/>
+				</Grid>
+				<CollectionView x:Name="NearbyCollectionView"
+                                ItemsLayout="HorizontalList"
+                                HeightRequest="150"
+                                SelectionMode="Single"
+                                SelectionChanged="NearbyStrip_SelectionChanged">
+					<CollectionView.EmptyView>
+						<Label Text="Đi gần quán hoặc chọn từ bản đồ"
+                               TextColor="#4B5563" FontSize="11"
+                               FontAttributes="Italic"
+                               HorizontalTextAlignment="Center"
+                               VerticalOptions="Center" Margin="20,30"/>
+					</CollectionView.EmptyView>
+					<CollectionView.ItemTemplate>
+						<DataTemplate x:DataType="models:PointOfInterest">
+							<Border WidthRequest="130" HeightRequest="140"
+                                    Margin="6,2,0,4" Padding="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#2A3545">
+								<Grid RowDefinitions="72,Auto,Auto"
+                                      Padding="5">
+									<Border Grid.Row="0"
+                                            StrokeShape="RoundRectangle 6"
+                                            StrokeThickness="0"
+                                            BackgroundColor="#3A4556">
+										<Grid>
+											<Image Source="{Binding ImageDisplaySource}"
+                                                   Aspect="AspectFill"/>
+											<Border BackgroundColor="{Binding CategoryHex}"
+                                                    StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 4"
+                                                    HorizontalOptions="Start"
+                                                    VerticalOptions="Start"
+                                                    Margin="3" Padding="3,1">
+												<Label Text="{Binding CategoryIcon}"
+                                                       FontSize="10"
+                                                       TextColor="White"/>
+											</Border>
+										</Grid>
+									</Border>
+									<Label Grid.Row="1" Text="{Binding Name}"
+                                           TextColor="White" FontSize="10"
+                                           FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="1" Margin="2,4,2,1"/>
+									<Label Grid.Row="2"
+                                           Text="{Binding DistanceText, StringFormat='📍 {0}'}"
+                                           TextColor="#FF8C42" FontSize="9"
+                                           FontAttributes="Bold"
+                                           Margin="2,0"/>
+								</Grid>
+							</Border>
+						</DataTemplate>
+					</CollectionView.ItemTemplate>
+				</CollectionView>
+			</VerticalStackLayout>
+		</Border>
+	</Grid>
+</ContentPage>

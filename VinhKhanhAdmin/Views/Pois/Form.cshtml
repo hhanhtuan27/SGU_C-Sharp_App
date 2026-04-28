@@ -1,0 +1,424 @@
+@model PoiFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"]    = isEdit ? $"Chỉnh sửa: {Model.Name}" : "Thêm POI mới";
+    ViewData["Subtitle"] = isEdit ? "Cập nhật thông tin địa điểm" : "Điền đầy đủ thông tin địa điểm ẩm thực";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+}
+
+@section TopbarActions {
+    <a class="btn btn-ghost" asp-controller="Pois" asp-action="Index">← Quay lại</a>
+}
+
+<div class="panel">
+  <form method="post"
+        asp-action="@(isEdit ? "Edit" : "Create")"
+        asp-route-id="@Model.Id"
+        enctype="multipart/form-data"
+        id="poi-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ImageUrl" id="hidden-image-url" />
+
+    <div class="panel-body">
+
+      <div asp-validation-summary="All" class="alert alert-error" style="margin-bottom: 16px;"></div>
+
+      <!-- ============ BASIC INFO ============ -->
+      <div class="form-grid">
+        <div class="field full">
+          <label asp-for="Name">Tên quán <span class="req">*</span></label>
+          <input asp-for="Name" placeholder="VD: Ốc Oanh, Quán Ốc 662..." />
+          <span asp-validation-for="Name" class="field-error"></span>
+        </div>
+
+        <div class="field">
+          <label asp-for="Category">Loại hình <span class="req">*</span></label>
+          <select asp-for="Category">
+            <option value="Oc">🐚 Ốc</option>
+            <option value="Nuong">🔥 Nướng</option>
+            <option value="Lau">🍲 Lẩu</option>
+            <option value="CaPhe">☕ Cà phê</option>
+            <option value="Khac">🍽️ Khác</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Mức ưu tiên (1-10)</label>
+          <div class="range-group">
+            <input type="range" asp-for="Priority" min="1" max="10"
+                   oninput="document.getElementById('priority-val').textContent = this.value" />
+            <div class="range-value" id="priority-val">@Model.Priority</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Bán kính geofence (m)</label>
+          <div class="range-group">
+            <input type="range" asp-for="RadiusMeters" min="10" max="100" id="radius-input"
+                   oninput="onRadiusChange(this.value)" />
+            <div class="range-value" id="radius-val">@Model.RadiusMeters.ToString("F0")m</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Trạng thái</label>
+          <div class="switch-row">
+            <label class="switch">
+              <input type="checkbox" asp-for="IsActive" id="active-input" />
+              <span class="switch-slider"></span>
+            </label>
+            <span id="active-label">● Đang hoạt động</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ OPTIONAL DETAILS ============ -->
+      <div class="form-grid" style="margin-top: 16px;">
+        <div class="field">
+          <label asp-for="Address">Địa chỉ</label>
+          <input asp-for="Address" placeholder="VD: 534 Vĩnh Khánh, Quận 4..." />
+        </div>
+        <div class="field">
+          <label asp-for="PhoneNumber">Số điện thoại</label>
+          <input asp-for="PhoneNumber" placeholder="0901 234 567" />
+        </div>
+        <div class="field">
+          <label asp-for="OpeningHours">Giờ mở cửa</label>
+          <input asp-for="OpeningHours" placeholder="17:00 - 23:30" />
+        </div>
+        <div class="field">
+          <label asp-for="PriceRange">Khoảng giá</label>
+          <input asp-for="PriceRange" placeholder="50k - 150k" />
+        </div>
+      </div>
+
+      <!-- ============ IMAGE UPLOAD ============ -->
+      <div class="coord-section" style="margin-top: 20px;">
+        <div class="coord-section-title">
+          <span class="num">📷</span> Hình ảnh quán
+        </div>
+        <div class="image-upload-row">
+          <div class="image-preview" id="image-preview">
+            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+            {
+              <img src="@Model.ImageUrl" alt="Current" id="preview-img" />
+            }
+            else
+            {
+              <div class="image-empty" id="preview-empty">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <div>Chưa có ảnh</div>
+              </div>
+            }
+          </div>
+          <div style="flex:1; display: flex; flex-direction: column; gap: 10px;">
+            <label class="btn btn-secondary" style="display: inline-flex; cursor: pointer;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload file (JPG/PNG/WEBP, tối đa 3MB)
+              <input type="file" asp-for="ImageFile" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previewImage(this)" />
+            </label>
+            <div style="font-size: 12px; color: var(--text-2);">
+              💡 Hoặc dán URL ảnh trực tiếp vào ô dưới. Web sẽ resize về 800x800 và lưu vào <code>/uploads/pois/</code>
+            </div>
+            <input type="url" id="image-url-input" placeholder="Hoặc dán URL ảnh: https://..."
+                   value="@Model.ImageUrl" oninput="onImageUrlChange(this.value)" />
+            <span asp-validation-for="ImageFile" class="field-error"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ COORDINATES ============ -->
+      <div class="coord-section" style="margin-top: 20px;">
+        <div class="coord-section-title">
+          <span class="num">A</span> Dán link Google Maps (tùy chọn)
+        </div>
+        <div class="coord-input-row">
+          <input type="text" asp-for="GoogleMapsLink" id="gmaps-link-input"
+                 placeholder="Dán link Google Maps, iframe embed, hoặc 'lat, lng'" />
+          <button type="button" class="btn btn-secondary" onclick="parseGmapsNow()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Trích xuất
+          </button>
+        </div>
+        <div class="parse-status" id="parse-status"></div>
+        <div style="font-size: 11px; color: var(--text-2); margin-top: 8px;">
+          💡 Hỗ trợ các dạng: <code>@@lat,lng</code> · <code>?query=</code> · iframe embed · URL path · <code>ll=</code> · tọa độ thuần
+        </div>
+      </div>
+
+      <div class="coord-section">
+        <div class="coord-section-title">
+          <span class="num">B</span> Nhập tay tọa độ <span class="req">*</span>
+        </div>
+        <div class="form-grid">
+          <div class="field" style="margin-bottom: 0;">
+            <label asp-for="Latitude">Vĩ độ (Latitude)</label>
+            <input type="number" step="0.000001" asp-for="Latitude" id="lat-input" oninput="onLatLngInput()" />
+            <span asp-validation-for="Latitude" class="field-error"></span>
+          </div>
+          <div class="field" style="margin-bottom: 0;">
+            <label asp-for="Longitude">Kinh độ (Longitude)</label>
+            <input type="number" step="0.000001" asp-for="Longitude" id="lng-input" oninput="onLatLngInput()" />
+            <span asp-validation-for="Longitude" class="field-error"></span>
+          </div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-2); margin-top: 8px;">
+          💡 Kéo-thả marker trên bản đồ để tinh chỉnh vị trí, hoặc click vào bản đồ để đặt điểm mới
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Xem trước trên bản đồ</label>
+        <div id="mini-map"></div>
+      </div>
+
+      <!-- ============ MULTILINGUAL DESCRIPTIONS ============ -->
+      <div style="margin-top: 20px;">
+        <label class="section-label">Mô tả thuyết minh (đa ngôn ngữ) · <span style="color: var(--text-2); font-weight: 400;">TTS đọc trực tiếp nội dung này</span></label>
+
+        <div class="lang-tabs">
+          <button type="button" class="lang-tab active" data-lang="Vi" onclick="switchLang('Vi')">
+            <span class="flag">🇻🇳</span>Tiếng Việt <span class="req">*</span>
+          </button>
+          <button type="button" class="lang-tab" data-lang="En" onclick="switchLang('En')">
+            <span class="flag">🇬🇧</span>English <span class="req">*</span>
+          </button>
+          <button type="button" class="lang-tab" data-lang="Ja" onclick="switchLang('Ja')">
+            <span class="flag">🇯🇵</span>日本語
+          </button>
+          <button type="button" class="lang-tab" data-lang="Ko" onclick="switchLang('Ko')">
+            <span class="flag">🇰🇷</span>한국어
+          </button>
+          <button type="button" class="lang-tab" data-lang="Zh" onclick="switchLang('Zh')">
+            <span class="flag">🇨🇳</span>中文
+          </button>
+        </div>
+
+        <div class="lang-pane active" data-pane="Vi">
+          <textarea asp-for="DescriptionVi" rows="5" placeholder="VD: Ốc Oanh là quán ốc huyền thoại của khu Vĩnh Khánh, nổi tiếng từ những năm 90..."></textarea>
+          <span asp-validation-for="DescriptionVi" class="field-error"></span>
+        </div>
+        <div class="lang-pane" data-pane="En">
+          <textarea asp-for="DescriptionEn" rows="5" placeholder="English description for TTS narration..."></textarea>
+          <span asp-validation-for="DescriptionEn" class="field-error"></span>
+        </div>
+        <div class="lang-pane" data-pane="Ja">
+          <textarea asp-for="DescriptionJa" rows="5" placeholder="日本語の説明..."></textarea>
+        </div>
+        <div class="lang-pane" data-pane="Ko">
+          <textarea asp-for="DescriptionKo" rows="5" placeholder="한국어 설명..."></textarea>
+        </div>
+        <div class="lang-pane" data-pane="Zh">
+          <textarea asp-for="DescriptionZh" rows="5" placeholder="中文描述..."></textarea>
+        </div>
+        <div style="font-size: 11px; color: var(--text-2); margin-top: 8px;">
+          💡 App MAUI sẽ tự động fallback ngôn ngữ chọn → EN → VN nếu bỏ trống. Không dùng markdown/HTML/emoji.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-footer">
+      <a class="btn btn-ghost" asp-controller="Pois" asp-action="Index">Hủy</a>
+      <button type="submit" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        @(isEdit ? "Cập nhật POI" : "Lưu POI")
+      </button>
+    </div>
+  </form>
+</div>
+
+@section Scripts {
+<script src="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(() => {
+  const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+  let map, marker, circle;
+
+  function initMap() {
+    const lat = parseFloat(document.getElementById('lat-input').value) || 10.760719;
+    const lng = parseFloat(document.getElementById('lng-input').value) || 106.703297;
+    const radius = parseFloat(document.getElementById('radius-input').value) || 30;
+
+    map = L.map('mini-map', { center: [lat, lng], zoom: 17, attributionControl: false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+    const icon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="width:28px;height:28px;background:linear-gradient(135deg,#FF8C42,#FFB84D);border:3px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 4px 12px rgba(255,140,66,0.6);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);color:white;font-size:14px;">📍</span></div>`,
+      iconSize: [28, 28], iconAnchor: [14, 28]
+    });
+
+    marker = L.marker([lat, lng], { icon, draggable: true }).addTo(map);
+    circle = L.circle([lat, lng], {
+      radius, color: '#FF8C42', fillColor: '#FF8C42', fillOpacity: 0.15, weight: 2
+    }).addTo(map);
+
+    marker.on('drag', e => circle.setLatLng(e.target.getLatLng()));
+    marker.on('dragend', e => {
+      const p = e.target.getLatLng();
+      document.getElementById('lat-input').value = p.lat.toFixed(6);
+      document.getElementById('lng-input').value = p.lng.toFixed(6);
+    });
+
+    map.on('click', e => {
+      marker.setLatLng(e.latlng);
+      circle.setLatLng(e.latlng);
+      document.getElementById('lat-input').value = e.latlng.lat.toFixed(6);
+      document.getElementById('lng-input').value = e.latlng.lng.toFixed(6);
+    });
+
+    setTimeout(() => map.invalidateSize(), 100);
+  }
+
+  window.onLatLngInput = () => {
+    const lat = parseFloat(document.getElementById('lat-input').value);
+    const lng = parseFloat(document.getElementById('lng-input').value);
+    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+      marker?.setLatLng([lat, lng]);
+      circle?.setLatLng([lat, lng]);
+      map?.setView([lat, lng]);
+    }
+  };
+
+  window.onRadiusChange = (v) => {
+    document.getElementById('radius-val').textContent = v + 'm';
+    circle?.setRadius(parseFloat(v));
+  };
+
+  window.parseGmapsNow = async () => {
+    const input = document.getElementById('gmaps-link-input').value.trim();
+    const status = document.getElementById('parse-status');
+    if (!input) { status.className = 'parse-status'; return; }
+
+    try {
+      const res = await fetch('/Pois/ParseGmaps', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        document.getElementById('lat-input').value = data.lat.toFixed(6);
+        document.getElementById('lng-input').value = data.lng.toFixed(6);
+        marker?.setLatLng([data.lat, data.lng]);
+        circle?.setLatLng([data.lat, data.lng]);
+        map?.setView([data.lat, data.lng]);
+        status.className = 'parse-status success';
+        status.innerHTML = `✓ Trích xuất thành công: <strong>${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}</strong> <span style="opacity:0.7;">(${data.method})</span>`;
+      } else {
+        status.className = 'parse-status error';
+        if (input.match(/maps\.app\.goo\.gl|goo\.gl\/maps/)) {
+          status.innerHTML = '⚠️ Short link Google Maps không chứa tọa độ trong URL. Vui lòng mở link trên trình duyệt, copy URL đầy đủ sau khi redirect, rồi dán lại.';
+        } else {
+          status.innerHTML = '✗ Không thể trích xuất tọa độ. Kiểm tra lại link hoặc nhập tay ở mục B.';
+        }
+      }
+    } catch (e) {
+      status.className = 'parse-status error';
+      status.textContent = 'Lỗi kết nối. Thử lại.';
+    }
+  };
+
+  // Auto-parse on paste/blur
+  const gm = document.getElementById('gmaps-link-input');
+  let pt;
+  gm.addEventListener('paste', () => setTimeout(parseGmapsNow, 50));
+  gm.addEventListener('input', () => { clearTimeout(pt); pt = setTimeout(parseGmapsNow, 600); });
+
+  // Language tabs
+  window.switchLang = (lang) => {
+    document.querySelectorAll('.lang-tab').forEach(t => t.classList.toggle('active', t.dataset.lang === lang));
+    document.querySelectorAll('.lang-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === lang));
+  };
+
+  // Active switch label
+  const activeInput = document.getElementById('active-input');
+  const activeLabel = document.getElementById('active-label');
+  function updateActiveLabel() {
+    if (activeInput.checked) {
+      activeLabel.textContent = '● Đang hoạt động';
+      activeLabel.style.color = 'var(--green)';
+    } else {
+      activeLabel.textContent = '○ Tạm dừng';
+      activeLabel.style.color = 'var(--text-2)';
+    }
+  }
+  activeInput.addEventListener('change', updateActiveLabel);
+  updateActiveLabel();
+
+  // Image preview
+  window.previewImage = (input) => {
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('image-preview').innerHTML = `<img src="${e.target.result}" alt="Preview" />`;
+    };
+    reader.readAsDataURL(file);
+    // Clear URL field since file takes priority
+    document.getElementById('image-url-input').value = '';
+  };
+
+  window.onImageUrlChange = (url) => {
+    document.getElementById('hidden-image-url').value = url;
+    if (url) {
+      document.getElementById('image-preview').innerHTML = `<img src="${url}" alt="Preview" onerror="this.style.display='none';" />`;
+    }
+  };
+
+  // Flag indicators: mark lang tabs that have content
+  function updateLangIndicators() {
+    ['Vi','En','Ja','Ko','Zh'].forEach(l => {
+      const ta = document.querySelector(`.lang-pane[data-pane="${l}"] textarea`);
+      const tab = document.querySelector(`.lang-tab[data-lang="${l}"] .flag`);
+      if (ta && tab) {
+        tab.classList.toggle('filled', ta.value.trim().length > 0);
+      }
+    });
+  }
+  document.querySelectorAll('.lang-pane textarea').forEach(t => t.addEventListener('input', updateLangIndicators));
+  updateLangIndicators();
+
+  // ── FIX: Auto-switch đến tab đầu tiên có lỗi validation khi form bị trả về ──
+  (function highlightErrorTabs() {
+    const tabOrder = ['Vi','En','Ja','Ko','Zh'];
+    let firstErrorTab = null;
+
+    tabOrder.forEach(lang => {
+      const pane = document.querySelector(`.lang-pane[data-pane="${lang}"]`);
+      const tab  = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
+      if (!pane || !tab) return;
+
+      // Kiểm tra có span lỗi không rỗng trong pane này
+      const hasError = Array.from(pane.querySelectorAll('[data-valmsg-for], .field-error'))
+        .some(el => el.textContent.trim().length > 0);
+
+      if (hasError) {
+        tab.style.borderColor = 'var(--red, #e53e3e)';
+        tab.style.color = 'var(--red, #e53e3e)';
+        if (!firstErrorTab) firstErrorTab = lang;
+      }
+    });
+
+    // Tự động mở tab đầu tiên có lỗi
+    if (firstErrorTab) {
+      switchLang(firstErrorTab);
+      // Scroll đến validation summary
+      document.querySelector('[data-valmsg-summary]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  })();
+
+  initMap();
+})();
+</script>
+}

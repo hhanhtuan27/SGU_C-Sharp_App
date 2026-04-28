@@ -1,0 +1,75 @@
+@model UserFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"]    = isEdit ? $"Chỉnh sửa: {Model.Username}" : "Thêm User mới";
+    ViewData["Subtitle"] = isEdit ? "Cập nhật thông tin tài khoản" : "Tạo tài khoản mới";
+}
+
+@section TopbarActions {
+    <a class="btn btn-ghost" asp-controller="Users" asp-action="Index">← Quay lại</a>
+}
+
+<div class="panel">
+  <form method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="panel-body" style="max-width: 600px;">
+
+      <div asp-validation-summary="ModelOnly" class="alert alert-error" style="margin-bottom: 16px;"></div>
+
+      <div class="field">
+        <label asp-for="Username">Tên đăng nhập <span class="req">*</span></label>
+        <input asp-for="Username" autocomplete="off" />
+        <span asp-validation-for="Username" class="field-error"></span>
+      </div>
+
+      <div class="field">
+        <label asp-for="Password">
+          @(isEdit ? "Mật khẩu mới (để trống nếu không đổi)" : "Mật khẩu ")
+          @if (!isEdit) { <span class="req">*</span> }
+        </label>
+        <input type="password" asp-for="Password" autocomplete="new-password" />
+        <span asp-validation-for="Password" class="field-error"></span>
+      </div>
+
+      <div class="field">
+        <label asp-for="DisplayName">Tên hiển thị</label>
+        <input asp-for="DisplayName" />
+      </div>
+
+      <div class="field">
+        <label asp-for="Email">Email</label>
+        <input type="email" asp-for="Email" />
+        <span asp-validation-for="Email" class="field-error"></span>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label asp-for="Role">Vai trò <span class="req">*</span></label>
+          <select asp-for="Role">
+            <option value="user">User (App mobile)</option>
+            <option value="admin">Admin (Web panel)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Trạng thái</label>
+          <div class="switch-row" style="padding-top: 8px;">
+            <label class="switch">
+              <input type="checkbox" asp-for="IsActive" />
+              <span class="switch-slider"></span>
+            </label>
+            <span>Kích hoạt tài khoản</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <a class="btn btn-ghost" asp-controller="Users" asp-action="Index">Hủy</a>
+      <button type="submit" class="btn btn-primary">
+        @(isEdit ? "Cập nhật User" : "Tạo User")
+      </button>
+    </div>
+  </form>
+</div>

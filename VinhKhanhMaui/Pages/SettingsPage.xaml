@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="VinhKhanhMaui.Pages.SettingsPage"
+             Title="Cài đặt"
+             BackgroundColor="#0F1724">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="20" Spacing="16">
+
+			<!-- Mock GPS -->
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="20">
+				<VerticalStackLayout Spacing="12">
+					<Label Text="🎮 Giả lập GPS (Demo)" FontSize="16"
+                           FontAttributes="Bold" TextColor="#FF8C42"/>
+					<Label Text="Dùng để test app tại nhà. App sẽ tự động đi bộ dọc Vĩnh Khánh và trigger thuyết minh."
+                           TextColor="#A0A5AF" FontSize="13" LineHeight="1.4"/>
+
+					<Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+						<Button Grid.Column="0" x:Name="BtnMockStart"
+                                Text="▶ Bắt đầu đi bộ"
+                                BackgroundColor="#2A3545" TextColor="White"
+                                FontSize="13" CornerRadius="8"
+                                Clicked="BtnMockStart_Clicked"/>
+						<Button Grid.Column="1" x:Name="BtnMockStop"
+                                Text="⏹ Dừng" IsEnabled="False"
+                                BackgroundColor="#2A3545" TextColor="#6B7280"
+                                FontSize="13" CornerRadius="8"
+                                Clicked="BtnMockStop_Clicked"/>
+					</Grid>
+					<Label x:Name="LblMockStatus" Text=""
+                           TextColor="#A0A5AF" FontSize="12"/>
+				</VerticalStackLayout>
+			</Border>
+
+			<!-- Ngôn ngữ -->
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="20">
+				<VerticalStackLayout Spacing="10">
+					<Label Text="🌐 Ngôn ngữ thuyết minh" FontSize="16"
+                           FontAttributes="Bold" TextColor="#FF8C42"/>
+					<Label Text="Khi chưa có bản dịch cho ngôn ngữ bạn chọn, app tự động chuyển sang English → Tiếng Việt."
+                           TextColor="#A0A5AF" FontSize="12" LineHeight="1.4"/>
+					<Picker x:Name="PickerLang"
+                            BackgroundColor="#2A3545" TextColor="White"
+                            ItemDisplayBinding="{Binding DisplayName}"
+                            SelectedIndexChanged="PickerLang_SelectedIndexChanged"/>
+				</VerticalStackLayout>
+			</Border>
+
+			<!-- Thông tin Geofence -->
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="20">
+				<VerticalStackLayout Spacing="8">
+					<Label Text="📡 Thông số Geofence" FontSize="16"
+                           FontAttributes="Bold" TextColor="#FF8C42"/>
+					<Label TextColor="#A0A5AF" FontSize="13" LineHeight="1.5"
+                           Text="• Bán kính kích hoạt: 30 mét&#10;• Debounce: 3 giây (phải ở trong vùng liên tục 3s)&#10;• Cooldown: 5 phút (không lặp cùng quán)&#10;• Ưu tiên: quán gần nhất trong nhiều quán"/>
+				</VerticalStackLayout>
+			</Border>
+
+			<!-- Hướng dẫn -->
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="20">
+				<VerticalStackLayout Spacing="8">
+					<Label Text="📖 Hướng dẫn sử dụng" FontSize="16"
+                           FontAttributes="Bold" TextColor="#FF8C42"/>
+					<Label TextColor="#A0A5AF" FontSize="13" LineHeight="1.5"
+                           Text="1. Bật GPS trên điện thoại&#10;2. Cho phép quyền vị trí khi được hỏi&#10;3. Đi bộ đến gần quán trên Vĩnh Khánh&#10;4. App tự động đọc mô tả quán gần nhất&#10;5. Click quán trên bản đồ hoặc danh sách để nghe&#10;6. Đổi ngôn ngữ bất kỳ lúc nào"/>
+				</VerticalStackLayout>
+			</Border>
+
+			<!-- About -->
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="20">
+				<VerticalStackLayout Spacing="6">
+					<Label Text="ℹ Về ứng dụng" FontSize="16"
+                           FontAttributes="Bold" TextColor="#FF8C42"/>
+					<Label Text="Smart Audio Guide v1.0" TextColor="White" FontSize="14"/>
+					<Label Text="Phố ẩm thực Vĩnh Khánh, Quận 4, TP.HCM" TextColor="#A0A5AF" FontSize="13"/>
+					<Label Text="Đồ án tốt nghiệp — .NET MAUI Cross-platform" TextColor="#A0A5AF" FontSize="12"/>
+					<Label Text="Hỗ trợ: 0707289072" TextColor="#A0A5AF" FontSize="12"/>
+
+					<Button Text="🔄 Xem lại hướng dẫn ban đầu"
+                            BackgroundColor="#2A3545" TextColor="White"
+                            FontSize="13" CornerRadius="8" Margin="0,10,0,0"
+                            Clicked="BtnResetOnboarding_Clicked"/>
+					<Button Text="🚪 Đăng xuất"
+                            BackgroundColor="#DC3545" TextColor="White"
+                            FontSize="13" CornerRadius="8"
+                            Clicked="BtnLogout_Clicked"/>
+				</VerticalStackLayout>
+			</Border>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:VinhKhanhMaui.Models"
+             x:Class="VinhKhanhMaui.Pages.PoiListPage"
+             Title="Danh sách quán"
+             BackgroundColor="#0F1724">
+
+	<Grid RowDefinitions="Auto,Auto,*">
+
+		<!-- Filter chips -->
+		<ScrollView Grid.Row="0" Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    Padding="12,10">
+			<HorizontalStackLayout x:Name="FilterChips" Spacing="8"/>
+		</ScrollView>
+
+		<!-- Search -->
+		<Border Grid.Row="1" StrokeShape="RoundRectangle 10"
+                StrokeThickness="0" BackgroundColor="#1A2332"
+                Margin="12,0,12,8" Padding="12,8">
+			<Entry x:Name="TxtSearch" Placeholder="🔍 Tìm quán..."
+                   PlaceholderColor="#6B7280" TextColor="White"
+                   FontSize="14" BackgroundColor="Transparent"
+                   TextChanged="TxtSearch_TextChanged"/>
+		</Border>
+
+		<!-- POI list -->
+		<CollectionView Grid.Row="2" x:Name="PoiListView"
+                        SelectionMode="Single"
+                        SelectionChanged="PoiListView_SelectionChanged">
+			<CollectionView.ItemTemplate>
+				<DataTemplate x:DataType="models:PointOfInterest">
+					<Border Margin="12,0,12,8" Padding="0"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            BackgroundColor="#1A2332">
+						<Grid ColumnDefinitions="90,*" HeightRequest="90">
+							<!-- Ảnh -->
+							<Border Grid.Column="0"
+                                    StrokeShape="RoundRectangle 12,0,0,12"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#2A3545">
+								<Grid>
+									<Image Source="{Binding ImageDisplay}"
+                                           Aspect="AspectFill"/>
+									<Label Text="{Binding CategoryIcon}"
+                                           FontSize="30"
+                                           TextColor="{Binding CategoryColor}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+								</Grid>
+							</Border>
+
+							<!-- Info -->
+							<VerticalStackLayout Grid.Column="1"
+                                                 Padding="12,10" Spacing="4"
+                                                 VerticalOptions="Center">
+								<Label Text="{Binding Name}" FontSize="15"
+                                       FontAttributes="Bold" TextColor="White"
+                                       LineBreakMode="TailTruncation" MaxLines="1"/>
+								<Label FontSize="12" TextColor="#A0A5AF">
+									<Label.Text>
+										<MultiBinding StringFormat="{}{0}  •  📍 {1}">
+											<Binding Path="Category"/>
+											<Binding Path="DistanceText"/>
+										</MultiBinding>
+									</Label.Text>
+								</Label>
+								<Label Text="{Binding DescriptionVi}"
+                                       FontSize="11" TextColor="#6B7280"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="2"/>
+							</VerticalStackLayout>
+						</Grid>
+					</Border>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+		</CollectionView>
+	</Grid>
+</ContentPage>

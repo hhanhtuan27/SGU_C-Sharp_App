@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:pages="clr-namespace:VinhKhanhMaui.Pages"
+       x:Class="VinhKhanhMaui.AppShell"
+       Shell.FlyoutBehavior="Flyout"
+       Shell.FlyoutBackgroundColor="#1A2332"
+       Shell.FlyoutWidth="300"
+       Shell.NavBarIsVisible="False">
+
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="#0F1724" Padding="20,30,20,20" HeightRequest="120">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                <Label Text="🍜" FontSize="36"/>
+                <Label x:Name="LblUserInfo" Text="Vĩnh Khánh Food Guide"
+                       FontSize="18" FontAttributes="Bold" TextColor="#FF8C42"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- Page chính — KHÔNG hiện trong flyout list -->
+    <ShellContent Route="map" FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate pages:MapPage}"/>
+
+    <!-- Menu items -->
+    <MenuItem Text="📋  Danh sách quán" Clicked="OnPoiListClicked"/>
+    <MenuItem Text="📍  Quán gần đây" Clicked="OnNearbyClicked"/>
+    <MenuItem Text="🎮  GPS Giả lập" Clicked="OnSimulatorClicked"/>
+    <MenuItem Text="🔄  Tải lại từ Web" Clicked="OnRefreshClicked"/>
+    <MenuItem Text="📖  Hướng dẫn" Clicked="OnHelpClicked"/>
+    <MenuItem Text="🚪  Đăng xuất" Clicked="OnLogoutClicked"/>
+
+    <Shell.FlyoutFooter>
+        <VerticalStackLayout Padding="20,12" BackgroundColor="#0F1724" Spacing="4">
+            <Label Text="Hỗ trợ: 0707289072" FontSize="11" TextColor="#6B7280"/>
+            <Label Text="v1.0 — Đồ án Ẩm thực" FontSize="10" TextColor="#4B5563"/>
+        </VerticalStackLayout>
+    </Shell.FlyoutFooter>
+</Shell>

@@ -1,0 +1,103 @@
+@{
+    var hideChrome = ViewData["HideChrome"] as bool? ?? false;
+    var route = (Context.Request.RouteValues["controller"]?.ToString() ?? "").ToLower();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — VinhKhanh Admin</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="@(hideChrome ? "no-chrome" : "")">
+
+@if (hideChrome)
+{
+    @RenderBody()
+}
+else
+{
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon">🍜</div>
+          <div class="brand-text">VinhKhanh<small>Admin Panel</small></div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Chính</div>
+            <a class="nav-item @(route == "home" ? "active" : "")" asp-controller="Home" asp-action="Index">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+              Dashboard
+            </a>
+            <a class="nav-item @(route == "pois" ? "active" : "")" asp-controller="Pois" asp-action="Index">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              Quản lý POI
+            </a>
+            @if (User.IsInRole("admin"))
+            {
+              <a class="nav-item @(route == "users" ? "active" : "")" asp-controller="Users" asp-action="Index">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                Quản lý User
+              </a>
+            }
+          </div>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-chip">
+            <div class="user-avatar">@((User.Identity?.Name ?? "U").Substring(0,1).ToUpper())</div>
+            <div class="user-info">
+              <div class="name">@User.FindFirst("DisplayName")?.Value</div>
+              <div class="role">@User.IsInRole("admin").ToString().Replace("True","Quản trị viên").Replace("False","User")</div>
+            </div>
+            <form asp-controller="Auth" asp-action="Logout" method="post" style="margin:0;">
+              @Html.AntiForgeryToken()
+              <button type="submit" class="btn-icon" title="Đăng xuất">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </aside>
+
+      <header class="topbar">
+        <div class="topbar-title">
+          @ViewData["Title"]
+          @if (ViewData["Subtitle"] != null)
+          {
+              <small>@ViewData["Subtitle"]</small>
+          }
+        </div>
+        <div class="topbar-actions">
+          @await RenderSectionAsync("TopbarActions", required: false)
+        </div>
+      </header>
+
+      <main class="main">
+        @if (TempData["Success"] != null)
+        {
+          <div class="alert alert-success" data-auto-dismiss>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            @TempData["Success"]
+          </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+          <div class="alert alert-error" data-auto-dismiss>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            @TempData["Error"]
+          </div>
+        }
+        @RenderBody()
+      </main>
+    </div>
+
+    <div id="toast-container"></div>
+}
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="VinhKhanhMaui.Pages.RegisterPage"
+             BackgroundColor="#0F1724"
+             Shell.NavBarIsVisible="False">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="30" Spacing="14"
+                             VerticalOptions="Center"
+                             MaximumWidthRequest="420">
+
+			<Label Text="🍜" FontSize="56" HorizontalOptions="Center"/>
+			<Label Text="Đăng ký tài khoản" FontSize="24"
+                   FontAttributes="Bold" TextColor="#FF8C42"
+                   HorizontalTextAlignment="Center"/>
+			<Label Text="Tham gia khám phá Vĩnh Khánh" FontSize="13"
+                   TextColor="#A0A5AF" HorizontalTextAlignment="Center"
+                   Margin="0,0,0,20"/>
+
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="16,10">
+				<Entry x:Name="TxtFullName" Placeholder="Họ và tên"
+                       PlaceholderColor="#6B7280" TextColor="White"
+                       FontSize="14" BackgroundColor="Transparent"/>
+			</Border>
+
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="16,10">
+				<Entry x:Name="TxtUsername" Placeholder="Tên đăng nhập"
+                       PlaceholderColor="#6B7280" TextColor="White"
+                       FontSize="14" BackgroundColor="Transparent"/>
+			</Border>
+
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="16,10">
+				<Entry x:Name="TxtEmail" Placeholder="Email (tùy chọn)"
+                       PlaceholderColor="#6B7280" TextColor="White"
+                       Keyboard="Email" FontSize="14"
+                       BackgroundColor="Transparent"/>
+			</Border>
+
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="16,10">
+				<Entry x:Name="TxtPassword" Placeholder="Mật khẩu (≥ 4 ký tự)"
+                       PlaceholderColor="#6B7280" TextColor="White"
+                       FontSize="14" IsPassword="True"
+                       BackgroundColor="Transparent"/>
+			</Border>
+
+			<Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="#1A2332" Padding="16,10">
+				<Entry x:Name="TxtConfirm" Placeholder="Xác nhận mật khẩu"
+                       PlaceholderColor="#6B7280" TextColor="White"
+                       FontSize="14" IsPassword="True"
+                       BackgroundColor="Transparent"/>
+			</Border>
+
+			<Button x:Name="BtnRegister" Text="Tạo tài khoản"
+                    BackgroundColor="#FF8C42" TextColor="Black"
+                    FontAttributes="Bold" FontSize="15"
+                    HeightRequest="48" CornerRadius="12"
+                    Margin="0,10,0,0"/>
+
+			<Button x:Name="BtnBackLogin" Text="← Đã có tài khoản? Đăng nhập"
+                    BackgroundColor="Transparent" TextColor="#A0A5AF"
+                    FontSize="13"/>
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="VinhKhanhMaui.Pages.OnboardingPage"
+             BackgroundColor="#0F1724"
+             Shell.NavBarIsVisible="False">
+
+	<Grid RowDefinitions="*,Auto,Auto">
+
+		<CarouselView Grid.Row="0" x:Name="Carousel"
+                      IndicatorView="CarouselIndicator"
+                      Loop="False">
+			<CarouselView.ItemTemplate>
+				<DataTemplate>
+					<VerticalStackLayout Padding="40" Spacing="20"
+                                         VerticalOptions="Center">
+						<Label Text="{Binding Icon}" FontSize="80"
+                               HorizontalOptions="Center"/>
+						<Label Text="{Binding Title}" FontSize="24"
+                               FontAttributes="Bold" TextColor="#FF8C42"
+                               HorizontalTextAlignment="Center"/>
+						<Label Text="{Binding Description}" FontSize="15"
+                               TextColor="#C0C5CF"
+                               HorizontalTextAlignment="Center"
+                               LineHeight="1.5"/>
+					</VerticalStackLayout>
+				</DataTemplate>
+			</CarouselView.ItemTemplate>
+		</CarouselView>
+
+		<IndicatorView Grid.Row="1" x:Name="CarouselIndicator"
+                       IndicatorColor="#3A4556"
+                       SelectedIndicatorColor="#FF8C42"
+                       HorizontalOptions="Center" Margin="0,0,0,20"/>
+
+		<Button Grid.Row="2" x:Name="BtnStart"
+        Text="Bắt đầu khám phá 🍜"
+        BackgroundColor="#FF8C42" TextColor="Black"
+        FontAttributes="Bold" FontSize="16"
+        HeightRequest="56" CornerRadius="28"
+        Margin="40,0,40,40"/>
+	</Grid>
+</ContentPage>

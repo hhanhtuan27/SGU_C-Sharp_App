@@ -1,0 +1,86 @@
+@model List<User>
+@{
+    ViewData["Title"]    = "Quản lý User";
+    ViewData["Subtitle"] = "Danh sách tài khoản hệ thống";
+    var q = ViewData["Query"] as string;
+}
+
+@section TopbarActions {
+    <a class="btn btn-primary" asp-controller="Users" asp-action="Create">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Thêm User
+    </a>
+}
+
+<form method="get" class="toolbar">
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" name="q" value="@q" placeholder="Tìm theo username hoặc tên..." />
+  </div>
+  <button type="submit" class="btn btn-secondary">Tìm</button>
+</form>
+
+<div class="panel">
+  <div class="panel-body compact">
+    @if (!Model.Any())
+    {
+      <div class="empty-state"><h3>Không có user</h3></div>
+    }
+    else
+    {
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 60px;">ID</th>
+            <th>Username</th>
+            <th>Tên hiển thị</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Last login</th>
+            <th>Trạng thái</th>
+            <th style="width: 120px; text-align: right;">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+        @foreach (var u in Model)
+        {
+          <tr>
+            <td style="color: var(--text-2); font-family: monospace;">#@u.Id</td>
+            <td class="poi-name">@u.Username</td>
+            <td>@(u.DisplayName ?? "-")</td>
+            <td style="color: var(--text-1);">@(u.Email ?? "-")</td>
+            <td>
+              <span class="badge @(u.Role == "admin" ? "badge-Oc" : "badge-CaPhe")">
+                @(u.Role == "admin" ? "Admin" : "User")
+              </span>
+            </td>
+            <td style="color: var(--text-2); font-size: 12px;">@(u.LastLoginAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa đăng nhập")</td>
+            <td><span class="status-dot @(u.IsActive ? "status-active" : "status-inactive")"></span>@(u.IsActive ? "Hoạt động" : "Tạm dừng")</td>
+            <td>
+              <div class="row-actions">
+                <a class="btn-icon" asp-action="Edit" asp-route-id="@u.Id" title="Chỉnh sửa">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </a>
+                <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" style="display:inline;">
+                  @Html.AntiForgeryToken()
+                  <button class="btn-icon @(u.IsActive ? "btn-danger-icon" : "")" type="submit"
+                          title="@(u.IsActive ? "Vô hiệu hóa" : "Kích hoạt")">
+                    @if (u.IsActive)
+                    {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    }
+                    else
+                    {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--green);"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    }
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
